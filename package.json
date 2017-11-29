@@ -1,0 +1,22 @@
+{
+  "name": "neighborhood_map",
+  "version": "1.0.0",
+  "description": "Neighborhood Map Udacity Project",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptya/Neighborhood_map.git"
+  },
+  "author": "Péter Szabó <petr.szab@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ptya/Neighborhood_map/issues"
+  },
+  "homepage": "https://github.com/ptya/Neighborhood_map#readme",
+  "dependencies": {
+    "google-maps": "^3.2.1"
+  }
+}
