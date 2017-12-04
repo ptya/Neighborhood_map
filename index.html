@@ -1,0 +1,34 @@
+<!-- ANIMÁLNI AKARTAM A MENÜ ELTŰNÉST valami okossággal.. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div class="flex-container wrapper">
+        <aside id="menu" class="menu">
+            <h1>Cool Locations</h1>
+            <div class="flex-container">
+                <input id="filter-locations-text" class="grow" type="text" placeholder="Enter your favorite area!">
+                <a class="btn btn-small btn-info" href="#">
+                        <i class="fa fa-filter" aria-hidden="true"></i> Filter</a>
+            </div>
+        </aside>
+
+        <div class="wrapper">
+            <header class="header">
+                <i id="menu-bar" class="fa fa-bars fa-lg menu-ico" aria-hidden="true"></i>
+            </header>
+            <main id ="map" class="map-container">
+            </main>
+        </div>
+    </div>
+    <script src="app/main.js"></script>
+</body>
+</html>

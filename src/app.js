@@ -1,16 +1,12 @@
-const GoogleMapsLoader = require('google-maps');
+const ko = require('../lib/knockout/knockout-3.4.2');
+const maps = require('./maps.js');
 
-GoogleMapsLoader.KEY = 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU';
-GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
+const menuIco = document.getElementById('menu-bar');
+const menu = document.getElementById('menu');
 
-const mapEl = document.getElementById('map');
-const options = {
-    center: {lat: 47.497, lng: 19.040},
-    zoom: 15,
-    // styles: styles,
-    mapTypeControl: false
-};
+function moveMenu(e) {
+    console.log(e);
+    menu.classList.toggle('move-left');
+}
 
-GoogleMapsLoader.load(function(google) {
-    const map = new google.maps.Map(mapEl, options);
-});
+menuIco.addEventListener('click', moveMenu);
