@@ -1,12 +1,18 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
-const maps = require('./maps.js');
+const gmaps = require('./maps.js');
+
 
 const menuIco = document.getElementById('menu-bar');
 const menu = document.getElementById('menu');
 
-function moveMenu(e) {
-    console.log(e);
-    menu.classList.toggle('move-left');
+const myMap = gmaps.Gmaps.initMaps();
+console.log('this is app.js ' + myMap);
+
+function moveMenu() {
+    menu.classList.toggle('hidden-menu');
+    gmaps.resize();
 }
+
+this.aMap = gmaps.MyMap;
 
 menuIco.addEventListener('click', moveMenu);

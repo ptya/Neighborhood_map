@@ -5,29 +5,45 @@ body {
   /* width: 100%; */
 }
 
-#map {
+#map-canvas {
     bottom:0;
-    height: 90%;
-    left: 20%;
-    position: absolute;
-    right: 0px;
-    top: 10%;
-    width: 80%;
+    height: 100%;
+    left: 0;
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
   }
 
 .flex-container {
   display: flex;
 }
 
-.grow {
+.menu {
+  flex: 1;
+  overflow: hidden;
+  padding: 1em;
+  transition: all 0.5s;
+  white-space: nowrap;
+}
+
+.hidden-menu {
+  flex: 0;
+  padding: 1em 0 1em 0;
+}
+
+.main {
+  flex: 4;
+  padding: 1em;
+}
+
+.filter-input {
+  /* overflow: hidden; */
   flex-grow: 1;
 }
 
-.menu {
+.max-height {
   height: 100%;
-  min-width: 20%;
-  max-width: 20%;
-  transition: all 1s;
 }
 
 .header {
@@ -35,8 +51,22 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-
+  margin-left: 1.5em;
 }
+
+/*.menu {
+  height: 100%;
+  min-width: 20%;
+  max-width: 20%;
+  transition: all 1s;
+  left: 0;
+  flex: 1
+}
+
+.main {
+  flex: 4;
+}
+
 
 .map-container {
   width: 100%;
@@ -53,5 +83,7 @@ body {
 
 .move-left {
   position: absolute;
-  left: -20%;
+  min-width: 0;
+  max-width: 0;
 }
+*/
