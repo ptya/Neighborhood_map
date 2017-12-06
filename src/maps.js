@@ -1,12 +1,5 @@
 const GoogleMapsLoader = require('google-maps');
 
-let myMap;
-function passMap(map) {
-    console.log('im in passmap');
-    myMap = map;
-    console.log(myMap);
-}
-
 const gmaps = {
     initMaps: function() {
         GoogleMapsLoader.KEY = 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU';
@@ -19,34 +12,26 @@ const gmaps = {
             // styles: styles,
             mapTypeControl: false
         };
-        let map = 'init';
         GoogleMapsLoader.load(function(google) {
-            const newMap = new google.maps.Map(mapEl, options);
-            console.log(mapEl);
-            console.log(map);
-            passMap(newMap);
-            console.log(map);
+            window.map = new google.maps.Map(mapEl, options);
         });
-        console.log(map);
     },
     resize: function() {
-        console.log("I'm in resize");
-        console.log(map);
+        const map = window.map;
+        const center = map.getCenter();
         GoogleMapsLoader.load(function(google) {
-            console.log("I'm in load");
-            google.maps.event.trigger(google.maps.Map, "resize");
-            console.log("Exiting load");
+            const repeatResize = setInterval(function(){
+                google.maps.event.trigger(map, "resize");
+                map.setCenter(center);
+            }, 5);
+            setTimeout(function(){
+                clearTimeout(repeatResize);
+            }, 500);
         });
-    },
-    getMap: function(map) {
-        this.map = map;
     }
 }
 
 
-console.log('this is myMap: ' + myMap);
-
 module.exports = {
     Gmaps: gmaps,
-    MyMap: myMap
 };

@@ -10,9 +10,13 @@ console.log('this is app.js ' + myMap);
 
 function moveMenu() {
     menu.classList.toggle('hidden-menu');
-    gmaps.resize();
+    gmaps.Gmaps.resize();
 }
 
 this.aMap = gmaps.MyMap;
+
+window.helloManki = function() {
+    console.log('Hellooo Monkeeey!');
+}
 
 menuIco.addEventListener('click', moveMenu);
