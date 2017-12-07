@@ -1,13 +1,13 @@
 html,
 body {
-  height: 100%;
+  height: 100vh;
   margin: 0;
   /* width: 100%; */
 }
 
 #map-canvas {
   bottom:0;
-  height: 100%;
+  height: 90vh;
   left: 0;
   position: relative;
   right: 0;
@@ -65,11 +65,11 @@ body {
 }
 
 .max-height {
-  height: 100%;
+  height: 100vh;
 }
 
 .header {
-  height: 10%;
+  max-height: 10%;
   display: flex;
   flex-direction: column;
   justify-content: center;
