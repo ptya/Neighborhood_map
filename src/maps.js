@@ -26,7 +26,7 @@ const gmaps = {
             }, 5);
             setTimeout(function(){
                 clearTimeout(repeatResize);
-            }, 500);
+            }, 300);
         });
     }
 }
