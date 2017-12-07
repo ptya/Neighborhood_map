@@ -347,7 +347,7 @@ new a.P;var b=new a.xb;0<b.ed&&a.Fb(b);a.b("jqueryTmplTemplateEngine",a.xb)})()}
 
 },{}],3:[function(require,module,exports){
 const ko = require('../lib/knockout/knockout-3.4.2');
-const gmaps = require('./maps.js');
+const gmaps = require('./maps');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -402,7 +402,72 @@ menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
 gmaps.Gmaps.initMaps();
-},{"../lib/knockout/knockout-3.4.2":1,"./maps.js":4}],4:[function(require,module,exports){
+
+/* knockout test here */
+const markers = require('./data/markers');
+
+const Marker = function(data) {
+    this.name = ko.observable(data.name);
+}
+
+const ViewModel = function() {
+    this.filterInput = ko.observable()
+
+    this.markerList = ko.computed(() => {
+        let list = [];
+        let filteredList = (this.filterInput() == null) ?
+            markers : markers.filter((marker) => {
+                return marker.name.includes(this.filterInput());
+            });
+        filteredList.forEach((markerItem) => {
+            list.push(new Marker(markerItem));
+        });
+
+        return list;
+    });
+
+    this.clickMarker = (marker) => {
+        console.log(marker.name());
+    };
+};
+
+
+/*
+Multiple viewmodels:
+If they all need to be on the same page, one easy way to do this is to have a master view model containing an array (or property list)
+of the other view models.
+
+masterVM = {
+    vmA : new VmA(),
+    vmB : new VmB(),
+    vmC : new VmC(),
+}
+*/
+ko.applyBindings(new ViewModel());
+},{"../lib/knockout/knockout-3.4.2":1,"./data/markers":4,"./maps":5}],4:[function(require,module,exports){
+const markers = [
+    {
+        name: "itt"
+    },
+    {
+        name: "ott"
+    },
+    {
+        name: "emitt"
+    },
+    {
+        name: "amott"
+    },
+    {
+        name: "emerre"
+    },
+    {
+        name: "amarra"
+    }
+];
+
+module.exports = markers;
+},{}],5:[function(require,module,exports){
 const GoogleMapsLoader = require('google-maps');
 
 const gmaps = {

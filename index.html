@@ -16,16 +16,22 @@
             <h1>Cool Locations</h1>
             <i id="menu-close" class="fa fa-times fa-2x x-button fade-in" aria-hidden="true"></i>
             <div class="flex-container">
-                <input id="filter-locations-text" class="filter-input" type="text" placeholder="Enter your favorite area!">
+                <input id="filter-locations-text" class="filter-input"
+                    data-bind="textInput: filterInput" type="text"
+                    placeholder="Enter your favorite area!">
                 <a class="btn btn-small btn-info" href="#">
-                    <i class="fa fa-filter" aria-hidden="true"></i> Filter</a>
-                </div>
+                    <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                </a>
             </div>
+            <ul data-bind="foreach: markerList">
+                <li><a href="#" data-bind="text: name, click: $parent.clickMarker"></a></li>
+            </ul>
+        </div>
 
-            <div class="main">
-                <div class="header">
-                    <i id="menu-bar" class="fa fa-bars fa-lg menu-ico fade-out" aria-hidden="true"></i>
-                    <h1 id="title" class="title fade-out">Cool Locations</h1>
+        <div class="main">
+            <div class="header">
+                <i id="menu-bar" class="fa fa-bars fa-lg menu-ico fade-out" aria-hidden="true"></i>
+                <h1 id="title" class="title fade-out">Cool Locations</h1>
             </div>
             <div id ="map-canvas" class="">
             </div>

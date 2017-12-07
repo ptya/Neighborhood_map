@@ -1,5 +1,5 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
-const gmaps = require('./maps.js');
+const gmaps = require('./maps');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -54,3 +54,45 @@ menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
 gmaps.Gmaps.initMaps();
+
+/* knockout test here */
+const markers = require('./data/markers');
+
+const Marker = function(data) {
+    this.name = ko.observable(data.name);
+}
+
+const ViewModel = function() {
+    this.filterInput = ko.observable()
+
+    this.markerList = ko.computed(() => {
+        let list = [];
+        let filteredList = (this.filterInput() == null) ?
+            markers : markers.filter((marker) => {
+                return marker.name.includes(this.filterInput());
+            });
+        filteredList.forEach((markerItem) => {
+            list.push(new Marker(markerItem));
+        });
+
+        return list;
+    });
+
+    this.clickMarker = (marker) => {
+        console.log(marker.name());
+    };
+};
+
+
+/*
+Multiple viewmodels:
+If they all need to be on the same page, one easy way to do this is to have a master view model containing an array (or property list)
+of the other view models.
+
+masterVM = {
+    vmA : new VmA(),
+    vmB : new VmB(),
+    vmC : new VmC(),
+}
+*/
+ko.applyBindings(new ViewModel());
