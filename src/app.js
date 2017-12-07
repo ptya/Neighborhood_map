@@ -3,14 +3,33 @@ const gmaps = require('./maps.js');
 
 
 const menuIco = document.getElementById('menu-bar');
+const menuClose = document.getElementById('menu-close');
 const menu = document.getElementById('menu');
 
 const myMap = gmaps.Gmaps.initMaps();
 console.log('this is app.js ' + myMap);
 
 function moveMenu() {
-    menu.classList.toggle('hidden-menu');
     gmaps.Gmaps.resize();
+    menu.classList.toggle('hidden-menu');
+    if (menuClose.classList.contains('fade-out')) {
+        setTimeout(function() {
+            menuClose.classList.toggle('fade-out');
+            menuClose.classList.toggle('fade-in');
+        }, 400);
+    } else {
+        menuClose.classList.toggle('fade-out');
+        menuClose.classList.toggle('fade-in');
+    }
+    if (menuIco.classList.contains('fade-out')) {
+        setTimeout(function() {
+            menuIco.classList.toggle('fade-out');
+            menuIco.classList.toggle('fade-in');
+        }, 400)
+    } else {
+        menuIco.classList.toggle('fade-out');
+        menuIco.classList.toggle('fade-in');
+    }
 }
 
 this.aMap = gmaps.MyMap;
@@ -20,3 +39,4 @@ window.helloManki = function() {
 }
 
 menuIco.addEventListener('click', moveMenu);
+menuClose.addEventListener('click', moveMenu);
