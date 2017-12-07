@@ -23,13 +23,30 @@ body {
   flex: 1;
   overflow: hidden;
   padding: 1em;
-  transition: all 0.5s;
+  position: relative;
+  transition: all 0.3s;
   white-space: nowrap;
 }
 
 .hidden-menu {
   flex: 0;
   padding: 1em 0 1em 0;
+}
+
+.x-button {
+  display: block;
+  position: absolute;
+  right: 0.5em;
+  top: 0.5em;
+  transition: transform .2s ease-in-out;
+}
+
+.x-button:hover {
+  transform: rotate(-90deg);
+}
+
+.hide {
+  visibility: hidden;
 }
 
 .main {
