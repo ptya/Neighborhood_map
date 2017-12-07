@@ -353,6 +353,7 @@ const gmaps = require('./maps.js');
 const menuIco = document.getElementById('menu-bar');
 const menuClose = document.getElementById('menu-close');
 const menu = document.getElementById('menu');
+const title = document.getElementById('title');
 
 const myMap = gmaps.Gmaps.initMaps();
 console.log('this is app.js ' + myMap);
@@ -373,10 +374,18 @@ function moveMenu() {
         setTimeout(function() {
             menuIco.classList.toggle('fade-out');
             menuIco.classList.toggle('fade-in');
-        }, 400)
+        }, 400);
+        setTimeout(function() {
+            title.classList.toggle('fade-out');
+            title.classList.toggle('fade-in');
+            title.classList.toggle('move-title');
+        }, 600);
     } else {
         menuIco.classList.toggle('fade-out');
         menuIco.classList.toggle('fade-in');
+        title.classList.toggle('fade-out');
+        title.classList.toggle('fade-in');
+        title.classList.toggle('move-title');
     }
 }
 

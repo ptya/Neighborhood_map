@@ -61,8 +61,7 @@ body {
 }
 
 .menu-ico {
-  opacity: 0;
-  visibility: hidden;
+  position: absolute;
 }
 
 .max-height {
@@ -75,6 +74,11 @@ body {
   flex-direction: column;
   justify-content: center;
   margin-left: 1.5em;
+  position: relative;
+}
+
+.title {
+  margin-left: 1.5em;
 }
 
 .fade-out {
@@ -85,7 +89,11 @@ body {
 .fade-in {
   visibility: visible;
   opacity: 1;
-  transition: transform .2s ease-in-out, visibility 0s, opacity .3s;
+  transition: transform .2s ease-in-out, visibility 0s, opacity .3s ease-in-out;
+}
+
+.move-title {
+  transform: translate(-0.5em);
 }
 
 /*.menu {
