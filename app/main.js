@@ -385,6 +385,12 @@ const gmaps = {
         };
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
+            const myLatLng = {lat: 47.497667, lng: 19.04103};
+            let marker = new google.maps.Marker({
+                position: myLatLng,
+                map: window.map,
+                title: 'Hello World!'
+            });
         });
     },
     resize: function() {
@@ -399,6 +405,19 @@ const gmaps = {
                 clearTimeout(repeatResize);
             }, 500);
         });
+    },
+    createMarker: function(position, title) {
+        const map = window.map;
+        GoogleMapsLoader.load(function(google) {
+            const marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: title
+            });
+        });
+    },
+    filterMarkers: function() {
+        // hide filtered markers and show only what is listed
     }
 }
 
