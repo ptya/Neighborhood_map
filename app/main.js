@@ -401,30 +401,31 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-gmaps.initMaps();
 
 /* knockout test here */
 const Place = require('./models/Place');
 const places = require('./data/places');
 
 const ViewModel = function() {
+    gmaps.initMaps();
+    const placesList = [];
+    places.forEach((place) => {
+        const placeItem = new Place(place);
+        gmaps.createMarker(placeItem);
+        placesList.push(placeItem);
+    });
+
     this.filterInput = ko.observable()
 
     this.markerList = ko.computed(() => {
-        let list = [];
         let filteredList = (this.filterInput() == null) ?
-            places : places.filter((place) => {
+            placesList : placesList.filter((place) => {
                 return place.title.toLowerCase()
                     .includes(this.filterInput().toLowerCase());
             });
-        filteredList.forEach((placeItem) => {
-            list.push(new Place(placeItem));
-        });
-        list.forEach((place) => {
-            gmaps.createMarker(place);
-        });
+        gmaps.filterMarkers(filteredList);
         gmaps.centerMap();
-        return list;
+        return filteredList;
     });
 
     this.clickPlace = (place) => {
@@ -485,7 +486,7 @@ const gmaps = {
         const mapEl = document.getElementById('map-canvas');
         const options = {
             center: {lat: 47.497, lng: 19.040},
-            zoom: 10,
+            zoom: 15,
             // styles: styles,
             mapTypeControl: false
         };
@@ -493,11 +494,11 @@ const gmaps = {
             window.map = new google.maps.Map(mapEl, options);
             window.markers = [];
             // set up event listener to auto-zoom if bounds change
-            google.maps.event.addListenerOnce(window.map, 'bounds_changed', function(event) {
-                this.setZoom(window.map.getZoom()-1);
+            google.maps.event.addListener(window.map, 'bounds_changed', function() {
+                this.setZoom(window.map.getZoom());
                 // set up minimal zoom level
-                if (this.getZoom() > 15) {
-                  this.setZoom(15);
+                if (this.getZoom() > 16) {
+                  this.setZoom(16);
                 }
               });
         });
@@ -531,16 +532,33 @@ const gmaps = {
             const map = window.map;
             const markers = window.markers;
             const bounds = new google.maps.LatLngBounds();
+            let validCenter = false;
             markers.forEach((marker) => {
-                bounds.extend(marker.getPosition());
+                if (marker.map) {
+                    bounds.extend(marker.getPosition());
+                    validCenter = true;
+                }
             });
             //center the map to the geometric center of all markers
-            map.setCenter(bounds.getCenter());
-            map.fitBounds(bounds);
+            if (validCenter) {
+                map.setCenter(bounds.getCenter());
+                map.fitBounds(bounds);
+            }
         });
     },
-    filterMarkers: function() {
-        // hide filtered markers and show only what is listed
+    filterMarkers: function(filteredMarkers) {
+        const map = window.map;
+        const markers = window.markers;
+        const filteredTitles = filteredMarkers.map((place) => place.title);
+        if (markers) {
+            markers.forEach((marker) => {
+                if (filteredTitles.includes(marker.title)) {
+                    if (marker.map == null) marker.setMap(map);
+                } else {
+                    marker.setMap(null);
+                };
+            });
+        }
     }
 }
 

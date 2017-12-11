@@ -53,30 +53,31 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-gmaps.initMaps();
 
 /* knockout test here */
 const Place = require('./models/Place');
 const places = require('./data/places');
 
 const ViewModel = function() {
+    gmaps.initMaps();
+    const placesList = [];
+    places.forEach((place) => {
+        const placeItem = new Place(place);
+        gmaps.createMarker(placeItem);
+        placesList.push(placeItem);
+    });
+
     this.filterInput = ko.observable()
 
     this.markerList = ko.computed(() => {
-        let list = [];
         let filteredList = (this.filterInput() == null) ?
-            places : places.filter((place) => {
+            placesList : placesList.filter((place) => {
                 return place.title.toLowerCase()
                     .includes(this.filterInput().toLowerCase());
             });
-        filteredList.forEach((placeItem) => {
-            list.push(new Place(placeItem));
-        });
-        list.forEach((place) => {
-            gmaps.createMarker(place);
-        });
+        gmaps.filterMarkers(filteredList);
         gmaps.centerMap();
-        return list;
+        return filteredList;
     });
 
     this.clickPlace = (place) => {
