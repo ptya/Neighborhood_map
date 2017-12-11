@@ -1,5 +1,5 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
-const gmaps = require('./maps');
+const mapsapi = require('./maps');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -20,7 +20,7 @@ const menu = document.getElementById('menu');
 const title = document.getElementById('title');
 
 function moveMenu() {
-    gmaps.Gmaps.resize();
+    mapsapi.Gmaps.resize();
     menu.classList.toggle('hidden-menu');
     if (menuClose.classList.contains('fade-out')) {
         setTimeout(function() {
@@ -53,7 +53,7 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-gmaps.Gmaps.initMaps();
+mapsapi.Gmaps.initMaps();
 
 /* knockout test here */
 const Place = require('./models/place');
@@ -70,6 +70,10 @@ const ViewModel = function() {
             });
         filteredList.forEach((placeItem) => {
             list.push(new Place(placeItem));
+        });
+
+        list.forEach((marker) => {
+            mapsapi.Gmaps.createMarker(marker);
         });
 
         return list;

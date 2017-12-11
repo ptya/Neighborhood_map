@@ -14,6 +14,7 @@ const gmaps = {
         };
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
+            window.markers = [];
             const myLatLng = {lat: 47.497667, lng: 19.04103};
             let marker = new google.maps.Marker({
                 position: myLatLng,
@@ -35,14 +36,15 @@ const gmaps = {
             }, 300);
         });
     },
-    createMarker: function(position, title) {
-        const map = window.map;
+    createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {
+            const map = window.map;
             const marker = new google.maps.Marker({
-                position: position,
+                position: {lat: place.lat, lng: place.lng},
                 map: map,
-                title: title
+                title: place.title
             });
+            window.markers.push(marker);
         });
     },
     filterMarkers: function() {

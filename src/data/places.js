@@ -1,13 +1,13 @@
 const markers = [
     {
         title: "itt",
-        lat: 47.497667,
-        lng: 19.04103
+        lat: 47.508089,
+        lng: 19.017586
     },
     {
         title: "ott",
-        lat: 42.497667,
-        lng: 18.04103
+        lat: 47.5099331,
+        lng: 19.024337
     },
     {
         title: "emitt",

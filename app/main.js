@@ -347,7 +347,7 @@ new a.P;var b=new a.xb;0<b.ed&&a.Fb(b);a.b("jqueryTmplTemplateEngine",a.xb)})()}
 
 },{}],3:[function(require,module,exports){
 const ko = require('../lib/knockout/knockout-3.4.2');
-const gmaps = require('./maps');
+const mapsapi = require('./maps');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -368,7 +368,7 @@ const menu = document.getElementById('menu');
 const title = document.getElementById('title');
 
 function moveMenu() {
-    gmaps.Gmaps.resize();
+    mapsapi.Gmaps.resize();
     menu.classList.toggle('hidden-menu');
     if (menuClose.classList.contains('fade-out')) {
         setTimeout(function() {
@@ -401,7 +401,7 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-gmaps.Gmaps.initMaps();
+mapsapi.Gmaps.initMaps();
 
 /* knockout test here */
 const Place = require('./models/place');
@@ -418,6 +418,10 @@ const ViewModel = function() {
             });
         filteredList.forEach((placeItem) => {
             list.push(new Place(placeItem));
+        });
+
+        list.forEach((marker) => {
+            mapsapi.Gmaps.createMarker(marker);
         });
 
         return list;
@@ -445,13 +449,13 @@ ko.applyBindings(new ViewModel());
 const markers = [
     {
         title: "itt",
-        lat: 47.497667,
-        lng: 19.04103
+        lat: 47.508089,
+        lng: 19.017586
     },
     {
         title: "ott",
-        lat: 42.497667,
-        lng: 18.04103
+        lat: 47.5099331,
+        lng: 19.024337
     },
     {
         title: "emitt",
@@ -493,6 +497,7 @@ const gmaps = {
         };
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
+            window.markers = [];
             const myLatLng = {lat: 47.497667, lng: 19.04103};
             let marker = new google.maps.Marker({
                 position: myLatLng,
@@ -514,14 +519,15 @@ const gmaps = {
             }, 300);
         });
     },
-    createMarker: function(position, title) {
-        const map = window.map;
+    createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {
+            const map = window.map;
             const marker = new google.maps.Marker({
-                position: position,
+                position: {lat: place.lat, lng: place.lng},
                 map: map,
-                title: title
+                title: place.title
             });
+            window.markers.push(marker);
         });
     },
     filterMarkers: function() {
