@@ -368,7 +368,7 @@ const menu = document.getElementById('menu');
 const title = document.getElementById('title');
 
 function moveMenu() {
-    gmaps.Gmaps.resize();
+    gmaps.resize();
     menu.classList.toggle('hidden-menu');
     if (menuClose.classList.contains('fade-out')) {
         setTimeout(function() {
@@ -401,14 +401,11 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-gmaps.Gmaps.initMaps();
+gmaps.initMaps();
 
 /* knockout test here */
-const markers = require('./data/markers');
-
-const Marker = function(data) {
-    this.name = ko.observable(data.name);
-}
+const Place = require('./models/Place');
+const places = require('./data/places');
 
 const ViewModel = function() {
     this.filterInput = ko.observable()
@@ -416,18 +413,22 @@ const ViewModel = function() {
     this.markerList = ko.computed(() => {
         let list = [];
         let filteredList = (this.filterInput() == null) ?
-            markers : markers.filter((marker) => {
-                return marker.name.includes(this.filterInput());
+            places : places.filter((place) => {
+                return place.title.toLowerCase()
+                    .includes(this.filterInput().toLowerCase());
             });
-        filteredList.forEach((markerItem) => {
-            list.push(new Marker(markerItem));
+        filteredList.forEach((placeItem) => {
+            list.push(new Place(placeItem));
         });
-
+        list.forEach((place) => {
+            gmaps.createMarker(place);
+        });
+        gmaps.centerMap();
         return list;
     });
 
-    this.clickMarker = (marker) => {
-        console.log(marker.name());
+    this.clickPlace = (place) => {
+        console.log(place.title());
     };
 };
 
@@ -444,29 +445,35 @@ masterVM = {
 }
 */
 ko.applyBindings(new ViewModel());
-},{"../lib/knockout/knockout-3.4.2":1,"./data/markers":4,"./maps":5}],4:[function(require,module,exports){
-const markers = [
+},{"../lib/knockout/knockout-3.4.2":1,"./data/places":4,"./maps":5,"./models/Place":6}],4:[function(require,module,exports){
+const places = [
     {
-        name: "itt"
+        title: "Városmajor",
+        position: {lat: 47.507904, lng: 19.017603}
     },
     {
-        name: "ott"
+        title: "CoolTour",
+        position: {lat: 47.5098299, lng: 19.0244666}
     },
     {
-        name: "emitt"
+        title: "Mátyás Templom",
+        position: {lat: 47.5019537, lng: 19.0341617}
     },
     {
-        name: "amott"
+        title: "Margitszigeti szökőkút",
+        position: {lat: 47.5187803, lng: 19.0447954}
     },
     {
-        name: "emerre"
+        title: "Hold utcai Vásárcsarnok",
+        position: {lat: 47.504828, lng: 19.0526494}
     },
     {
-        name: "amarra"
+        title: "Pontoon",
+        position: {lat: 47.4996289, lng: 19.046212}
     }
 ];
 
-module.exports = markers;
+module.exports = places;
 },{}],5:[function(require,module,exports){
 const GoogleMapsLoader = require('google-maps');
 
@@ -478,18 +485,21 @@ const gmaps = {
         const mapEl = document.getElementById('map-canvas');
         const options = {
             center: {lat: 47.497, lng: 19.040},
-            zoom: 15,
+            zoom: 10,
             // styles: styles,
             mapTypeControl: false
         };
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
-            const myLatLng = {lat: 47.497667, lng: 19.04103};
-            let marker = new google.maps.Marker({
-                position: myLatLng,
-                map: window.map,
-                title: 'Hello World!'
-            });
+            window.markers = [];
+            // set up event listener to auto-zoom if bounds change
+            google.maps.event.addListenerOnce(window.map, 'bounds_changed', function(event) {
+                this.setZoom(window.map.getZoom()-1);
+                // set up minimal zoom level
+                if (this.getZoom() > 15) {
+                  this.setZoom(15);
+                }
+              });
         });
     },
     resize: function() {
@@ -505,14 +515,28 @@ const gmaps = {
             }, 300);
         });
     },
-    createMarker: function(position, title) {
-        const map = window.map;
+    createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {
+            const map = window.map;
             const marker = new google.maps.Marker({
-                position: position,
+                position: place.position,
                 map: map,
-                title: title
+                title: place.title
             });
+            window.markers.push(marker);
+        });
+    },
+    centerMap: function() {
+        GoogleMapsLoader.load(function(google) {
+            const map = window.map;
+            const markers = window.markers;
+            const bounds = new google.maps.LatLngBounds();
+            markers.forEach((marker) => {
+                bounds.extend(marker.getPosition());
+            });
+            //center the map to the geometric center of all markers
+            map.setCenter(bounds.getCenter());
+            map.fitBounds(bounds);
         });
     },
     filterMarkers: function() {
@@ -521,7 +545,12 @@ const gmaps = {
 }
 
 
-module.exports = {
-    Gmaps: gmaps,
+module.exports = gmaps;
+},{"google-maps":2}],6:[function(require,module,exports){
+const Place = function (data) {
+    this.title = data.title;
+    this.position = data.position;
 };
-},{"google-maps":2}]},{},[3]);
+
+module.exports = Place;
+},{}]},{},[3]);

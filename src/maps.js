@@ -8,18 +8,21 @@ const gmaps = {
         const mapEl = document.getElementById('map-canvas');
         const options = {
             center: {lat: 47.497, lng: 19.040},
-            zoom: 15,
+            zoom: 10,
             // styles: styles,
             mapTypeControl: false
         };
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
-            const myLatLng = {lat: 47.497667, lng: 19.04103};
-            let marker = new google.maps.Marker({
-                position: myLatLng,
-                map: window.map,
-                title: 'Hello World!'
-            });
+            window.markers = [];
+            // set up event listener to auto-zoom if bounds change
+            google.maps.event.addListenerOnce(window.map, 'bounds_changed', function(event) {
+                this.setZoom(window.map.getZoom()-1);
+                // set up minimal zoom level
+                if (this.getZoom() > 15) {
+                  this.setZoom(15);
+                }
+              });
         });
     },
     resize: function() {
@@ -35,14 +38,28 @@ const gmaps = {
             }, 300);
         });
     },
-    createMarker: function(position, title) {
-        const map = window.map;
+    createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {
+            const map = window.map;
             const marker = new google.maps.Marker({
-                position: position,
+                position: place.position,
                 map: map,
-                title: title
+                title: place.title
             });
+            window.markers.push(marker);
+        });
+    },
+    centerMap: function() {
+        GoogleMapsLoader.load(function(google) {
+            const map = window.map;
+            const markers = window.markers;
+            const bounds = new google.maps.LatLngBounds();
+            markers.forEach((marker) => {
+                bounds.extend(marker.getPosition());
+            });
+            //center the map to the geometric center of all markers
+            map.setCenter(bounds.getCenter());
+            map.fitBounds(bounds);
         });
     },
     filterMarkers: function() {
@@ -51,6 +68,4 @@ const gmaps = {
 }
 
 
-module.exports = {
-    Gmaps: gmaps,
-};
+module.exports = gmaps;
