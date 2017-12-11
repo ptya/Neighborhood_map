@@ -56,11 +56,8 @@ menuClose.addEventListener('click', moveMenu);
 gmaps.Gmaps.initMaps();
 
 /* knockout test here */
-const markers = require('./data/markers');
-
-const Marker = function(data) {
-    this.name = ko.observable(data.name);
-}
+const Place = require('./models/place');
+const places = require('./data/places');
 
 const ViewModel = function() {
     this.filterInput = ko.observable()
@@ -68,18 +65,18 @@ const ViewModel = function() {
     this.markerList = ko.computed(() => {
         let list = [];
         let filteredList = (this.filterInput() == null) ?
-            markers : markers.filter((marker) => {
-                return marker.name.includes(this.filterInput());
+            places : places.filter((place) => {
+                return place.title.includes(this.filterInput());
             });
-        filteredList.forEach((markerItem) => {
-            list.push(new Marker(markerItem));
+        filteredList.forEach((placeItem) => {
+            list.push(new Place(placeItem));
         });
 
         return list;
     });
 
     this.clickMarker = (marker) => {
-        console.log(marker.name());
+        console.log(marker.title());
     };
 };
 

@@ -404,11 +404,8 @@ menuClose.addEventListener('click', moveMenu);
 gmaps.Gmaps.initMaps();
 
 /* knockout test here */
-const markers = require('./data/markers');
-
-const Marker = function(data) {
-    this.name = ko.observable(data.name);
-}
+const Place = require('./models/place');
+const places = require('./data/places');
 
 const ViewModel = function() {
     this.filterInput = ko.observable()
@@ -416,18 +413,18 @@ const ViewModel = function() {
     this.markerList = ko.computed(() => {
         let list = [];
         let filteredList = (this.filterInput() == null) ?
-            markers : markers.filter((marker) => {
-                return marker.name.includes(this.filterInput());
+            places : places.filter((place) => {
+                return place.title.includes(this.filterInput());
             });
-        filteredList.forEach((markerItem) => {
-            list.push(new Marker(markerItem));
+        filteredList.forEach((placeItem) => {
+            list.push(new Place(placeItem));
         });
 
         return list;
     });
 
     this.clickMarker = (marker) => {
-        console.log(marker.name());
+        console.log(marker.title());
     };
 };
 
@@ -444,25 +441,37 @@ masterVM = {
 }
 */
 ko.applyBindings(new ViewModel());
-},{"../lib/knockout/knockout-3.4.2":1,"./data/markers":4,"./maps":5}],4:[function(require,module,exports){
+},{"../lib/knockout/knockout-3.4.2":1,"./data/places":4,"./maps":5,"./models/place":6}],4:[function(require,module,exports){
 const markers = [
     {
-        name: "itt"
+        title: "itt",
+        lat: 47.497667,
+        lng: 19.04103
     },
     {
-        name: "ott"
+        title: "ott",
+        lat: 42.497667,
+        lng: 18.04103
     },
     {
-        name: "emitt"
+        title: "emitt",
+        lat: 49.497667,
+        lng: 20.04103
     },
     {
-        name: "amott"
+        title: "amott",
+        lat: 51.497667,
+        lng: 21.04103
     },
     {
-        name: "emerre"
+        title: "emerre",
+        lat: 38.497667,
+        lng: 17.04103
     },
     {
-        name: "amarra"
+        title: "amarra",
+        lat: 40.497667,
+        lng: 16.04103
     }
 ];
 
@@ -524,4 +533,15 @@ const gmaps = {
 module.exports = {
     Gmaps: gmaps,
 };
-},{"google-maps":2}]},{},[3]);
+},{"google-maps":2}],6:[function(require,module,exports){
+const Place = function(data) {
+    this.title = data.title;
+    this.lat = data.lat;
+    this.lng = data.lng;
+    /*
+    state for active?
+    */
+};
+
+module.exports = Place;
+},{}]},{},[3]);
