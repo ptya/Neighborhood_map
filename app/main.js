@@ -495,10 +495,12 @@ const gmaps = {
             window.markers = [];
             // set up event listener to auto-zoom if bounds change
             google.maps.event.addListener(window.map, 'bounds_changed', function() {
-                this.setZoom(window.map.getZoom());
-                // set up minimal zoom level
-                if (this.getZoom() > 16) {
-                  this.setZoom(16);
+                let zoom = window.map.getZoom();
+                // set minimum zoom level
+                if (zoom > 16) {
+                    window.map.setZoom(16);
+                } else {
+                    window.map.setZoom(zoom);
                 }
               });
         });
@@ -509,7 +511,7 @@ const gmaps = {
         GoogleMapsLoader.load(function(google) {
             const repeatResize = setInterval(function(){
                 google.maps.event.trigger(map, "resize");
-                map.setCenter(center);
+                map.panTo(center);
             }, 5);
             setTimeout(function(){
                 clearTimeout(repeatResize);
@@ -522,7 +524,8 @@ const gmaps = {
             const marker = new google.maps.Marker({
                 position: place.position,
                 map: map,
-                title: place.title
+                title: place.title,
+                animation: google.maps.Animation.DROP
             });
             window.markers.push(marker);
         });
@@ -541,7 +544,10 @@ const gmaps = {
             });
             //center the map to the geometric center of all markers
             if (validCenter) {
-                map.setCenter(bounds.getCenter());
+                console.log(bounds.contains(map.getBounds().toSpan()));
+                console.log(map.getBounds().contains(bounds.toSpan()));
+                console.log(map.getBounds().toSpan());
+                map.panTo(bounds.getCenter());
                 map.fitBounds(bounds);
             }
         });
@@ -553,7 +559,7 @@ const gmaps = {
         if (markers) {
             markers.forEach((marker) => {
                 if (filteredTitles.includes(marker.title)) {
-                    if (marker.map == null) marker.setMap(map);
+                    if (marker.map === null) marker.setMap(map);
                 } else {
                     marker.setMap(null);
                 };
