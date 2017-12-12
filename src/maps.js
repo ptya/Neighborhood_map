@@ -15,12 +15,16 @@ const gmaps = {
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
             window.markers = [];
-            const myLatLng = {lat: 47.497667, lng: 19.04103};
-            let marker = new google.maps.Marker({
-                position: myLatLng,
-                map: window.map,
-                title: 'Hello World!'
-            });
+            // set up event listener to auto-zoom if bounds change
+            google.maps.event.addListener(window.map, 'bounds_changed', function() {
+                let zoom = window.map.getZoom();
+                // set minimum zoom level
+                if (zoom > 16) {
+                    window.map.setZoom(16);
+                } else {
+                    window.map.setZoom(zoom);
+                }
+              });
         });
     },
     resize: function() {
@@ -29,7 +33,7 @@ const gmaps = {
         GoogleMapsLoader.load(function(google) {
             const repeatResize = setInterval(function(){
                 google.maps.event.trigger(map, "resize");
-                map.setCenter(center);
+                map.panTo(center);
             }, 5);
             setTimeout(function(){
                 clearTimeout(repeatResize);
@@ -40,19 +44,51 @@ const gmaps = {
         GoogleMapsLoader.load(function(google) {
             const map = window.map;
             const marker = new google.maps.Marker({
-                position: {lat: place.lat, lng: place.lng},
+                position: place.position,
                 map: map,
-                title: place.title
+                title: place.title,
+                animation: google.maps.Animation.DROP
             });
             window.markers.push(marker);
         });
     },
-    filterMarkers: function() {
-        // hide filtered markers and show only what is listed
+    centerMap: function() {
+        GoogleMapsLoader.load(function(google) {
+            const map = window.map;
+            const markers = window.markers;
+            const bounds = new google.maps.LatLngBounds();
+            let validCenter = false;
+            markers.forEach((marker) => {
+                if (marker.map) {
+                    bounds.extend(marker.getPosition());
+                    validCenter = true;
+                }
+            });
+            //center the map to the geometric center of all markers
+            if (validCenter) {
+                console.log(bounds.contains(map.getBounds().toSpan()));
+                console.log(map.getBounds().contains(bounds.toSpan()));
+                console.log(map.getBounds().toSpan());
+                map.panTo(bounds.getCenter());
+                map.fitBounds(bounds);
+            }
+        });
+    },
+    filterMarkers: function(filteredMarkers) {
+        const map = window.map;
+        const markers = window.markers;
+        const filteredTitles = filteredMarkers.map((place) => place.title);
+        if (markers) {
+            markers.forEach((marker) => {
+                if (filteredTitles.includes(marker.title)) {
+                    if (marker.map === null) marker.setMap(map);
+                } else {
+                    marker.setMap(null);
+                };
+            });
+        }
     }
 }
 
 
-module.exports = {
-    Gmaps: gmaps,
-};
+module.exports = gmaps;

@@ -20,7 +20,7 @@ const menu = document.getElementById('menu');
 const title = document.getElementById('title');
 
 function moveMenu() {
-    mapsapi.Gmaps.resize();
+    gmaps.resize();
     menu.classList.toggle('hidden-menu');
     if (menuClose.classList.contains('fade-out')) {
         setTimeout(function() {
@@ -53,34 +53,35 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
-mapsapi.Gmaps.initMaps();
 
 /* knockout test here */
-const Place = require('./models/place');
+const Place = require('./models/Place');
 const places = require('./data/places');
 
 const ViewModel = function() {
+    gmaps.initMaps();
+    const placesList = [];
+    places.forEach((place) => {
+        const placeItem = new Place(place);
+        gmaps.createMarker(placeItem);
+        placesList.push(placeItem);
+    });
+
     this.filterInput = ko.observable()
 
     this.markerList = ko.computed(() => {
-        let list = [];
         let filteredList = (this.filterInput() == null) ?
-            places : places.filter((place) => {
-                return place.title.includes(this.filterInput());
+            placesList : placesList.filter((place) => {
+                return place.title.toLowerCase()
+                    .includes(this.filterInput().toLowerCase());
             });
-        filteredList.forEach((placeItem) => {
-            list.push(new Place(placeItem));
-        });
-
-        list.forEach((marker) => {
-            mapsapi.Gmaps.createMarker(marker);
-        });
-
-        return list;
+        gmaps.filterMarkers(filteredList);
+        gmaps.centerMap();
+        return filteredList;
     });
 
-    this.clickMarker = (marker) => {
-        console.log(marker.title());
+    this.clickPlace = (place) => {
+        console.log(place.title());
     };
 };
 

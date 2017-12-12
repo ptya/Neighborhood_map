@@ -1,34 +1,28 @@
-const markers = [
+const places = [
     {
-        title: "itt",
-        lat: 47.508089,
-        lng: 19.017586
+        title: "Városmajor",
+        position: {lat: 47.507904, lng: 19.017603}
     },
     {
-        title: "ott",
-        lat: 47.5099331,
-        lng: 19.024337
+        title: "CoolTour",
+        position: {lat: 47.5098299, lng: 19.0244666}
     },
     {
-        title: "emitt",
-        lat: 49.497667,
-        lng: 20.04103
+        title: "Mátyás Templom",
+        position: {lat: 47.5019537, lng: 19.0341617}
     },
     {
-        title: "amott",
-        lat: 51.497667,
-        lng: 21.04103
+        title: "Margitszigeti szökőkút",
+        position: {lat: 47.5187803, lng: 19.0447954}
     },
     {
-        title: "emerre",
-        lat: 38.497667,
-        lng: 17.04103
+        title: "Hold utcai Vásárcsarnok",
+        position: {lat: 47.504828, lng: 19.0526494}
     },
     {
-        title: "amarra",
-        lat: 40.497667,
-        lng: 16.04103
+        title: "Pontoon",
+        position: {lat: 47.4996289, lng: 19.046212}
     }
 ];
 
-module.exports = markers;
+module.exports = places;

@@ -1,10 +1,6 @@
-const Place = function(data) {
+const Place = function (data) {
     this.title = data.title;
-    this.lat = data.lat;
-    this.lng = data.lng;
-    /*
-    state for active?
-    */
+    this.position = data.position;
 };
 
 module.exports = Place;
