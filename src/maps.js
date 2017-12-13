@@ -7,7 +7,7 @@ const gmaps = {
 
         const mapEl = document.getElementById('map-canvas');
         const options = {
-            center: {lat: 47.497, lng: 19.040},
+            center: {lat: 47.509205473526436, lng: 19.035126200000036},
             zoom: 15,
             // styles: styles,
             mapTypeControl: false
@@ -66,9 +66,6 @@ const gmaps = {
             });
             //center the map to the geometric center of all markers
             if (validCenter) {
-                console.log(bounds.contains(map.getBounds().toSpan()));
-                console.log(map.getBounds().contains(bounds.toSpan()));
-                console.log(map.getBounds().toSpan());
                 map.panTo(bounds.getCenter());
                 map.fitBounds(bounds);
             }

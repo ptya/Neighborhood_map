@@ -1,5 +1,6 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
-const mapsapi = require('./maps');
+const gmaps = require('./maps');
+const _ = require('underscore');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -68,15 +69,18 @@ const ViewModel = function() {
     });
 
     this.filterInput = ko.observable()
-
+    this.previousList = [];
     this.markerList = ko.computed(() => {
         let filteredList = (this.filterInput() == null) ?
             placesList : placesList.filter((place) => {
                 return place.title.toLowerCase()
                     .includes(this.filterInput().toLowerCase());
             });
-        gmaps.filterMarkers(filteredList);
-        gmaps.centerMap();
+        if (!_.isEqual(filteredList, this.previousList)) {
+            gmaps.filterMarkers(filteredList);
+            gmaps.centerMap();
+            this.previousList = filteredList;
+        }
         return filteredList;
     });
 
