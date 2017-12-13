@@ -2048,6 +2048,7 @@ const gmaps = {
         GoogleMapsLoader.load(function(google) {
             window.map = new google.maps.Map(mapEl, options);
             window.markers = [];
+            window.largeInfowindow = new google.maps.InfoWindow();
             // set up event listener to auto-zoom if bounds change
             google.maps.event.addListener(window.map, 'bounds_changed', function() {
                 let zoom = window.map.getZoom();
@@ -2076,13 +2077,54 @@ const gmaps = {
     createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {
             const map = window.map;
+            const largeInfowindow = window.largeInfowindow;
+            // helper functions
+            function makeMarkerIcon(color) {
+                const markerImage = new google.maps.MarkerImage(
+                    'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' +
+                    color +
+                    '|40|_|%E2%80%A2',
+                    new google.maps.Size(21, 34),
+                    new google.maps.Point(0, 0),
+                    new google.maps.Point(10, 34),
+                    new google.maps.Size(21,34));
+                return markerImage;
+            }
+            function populateInfoWindow(selectedMarker, infowindow) {
+                if (infowindow.marker !== selectedMarker) {
+                    infowindow.setContent(selectedMarker.title);
+                    infowindow.marker = selectedMarker;
+
+                    infowindow.addListener('closeclick', function() {
+                        infowindow.marker = null;
+                    });
+                    infowindow.open(map, selectedMarker);
+                }
+            }
+
+            const defaultIcon = makeMarkerIcon('0091ff');
+            const highlightedIcon = makeMarkerIcon('FFFF24');
             const marker = new google.maps.Marker({
                 position: place.position,
                 map: map,
                 title: place.title,
-                animation: google.maps.Animation.DROP
+                animation: google.maps.Animation.DROP,
+                icon: defaultIcon
             });
+
             window.markers.push(marker);
+
+            // add listeners
+            marker.addListener('click', function() {
+                populateInfoWindow(this, largeInfowindow);
+            });
+            marker.addListener('mouseover', function() {
+                this.setIcon(highlightedIcon);
+            });
+            marker.addListener('mouseout', function() {
+                this.setIcon(defaultIcon);
+            });
+
         });
     },
     centerMap: function() {
