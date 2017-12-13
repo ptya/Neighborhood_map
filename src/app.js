@@ -1,6 +1,6 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
 const gmaps = require('./maps');
-const _ = require('underscore');
+const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.

@@ -1898,7 +1898,7 @@ new a.P;var b=new a.xb;0<b.ed&&a.Fb(b);a.b("jqueryTmplTemplateEngine",a.xb)})()}
 },{}],4:[function(require,module,exports){
 const ko = require('../lib/knockout/knockout-3.4.2');
 const gmaps = require('./maps');
-const _ = require('underscore');
+const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -2031,7 +2031,7 @@ const places = [
 module.exports = places;
 
 },{}],6:[function(require,module,exports){
-const GoogleMapsLoader = require('google-maps');
+const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
 
 const gmaps = {
     initMaps: function() {
@@ -2108,6 +2108,7 @@ const gmaps = {
                         },
                         disableDefaultUI: true
                     };
+                    // eslint-disable-next-line no-unused-vars
                     const panorama = new google.maps.StreetViewPanorama(
                         document.getElementById('pano'), options
                     );

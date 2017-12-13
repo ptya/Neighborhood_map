@@ -1,4 +1,4 @@
-const GoogleMapsLoader = require('google-maps');
+const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
 
 const gmaps = {
     initMaps: function() {
@@ -75,6 +75,7 @@ const gmaps = {
                         },
                         disableDefaultUI: true
                     };
+                    // eslint-disable-next-line no-unused-vars
                     const panorama = new google.maps.StreetViewPanorama(
                         document.getElementById('pano'), options
                     );
