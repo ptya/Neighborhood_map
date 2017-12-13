@@ -15,6 +15,10 @@ body {
   width: 100%;
 }
 
+#pano {
+  height: 20rem;
+  width: 30rem;
+}
 
 
 .flex-container {

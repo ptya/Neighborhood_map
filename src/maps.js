@@ -57,6 +57,34 @@ const gmaps = {
                     new google.maps.Size(21,34));
                 return markerImage;
             }
+            function processStreetView(data, status) {
+                if (status === google.maps.StreetViewStatus.OK) {
+                    const loc = data.location.latLng;
+                    const heading = google.maps.geometry.spherical.computeHeading(
+                        loc, this.largeInfowindow.anchor.position
+                    );
+                    this.largeInfowindow.setContent(
+                        `<div>${this.largeInfowindow.anchor.title}</div><div id="pano"></div>`
+                    );
+
+                    const options = {
+                        position: loc,
+                        pov: {
+                            heading: heading,
+                            pitch: 25
+                        },
+                        disableDefaultUI: true
+                    };
+                    const panorama = new google.maps.StreetViewPanorama(
+                        document.getElementById('pano'), options
+                    );
+                } else {
+                    console.log(':(');
+                    this.largeInfowindow.setContent(
+                        `<div>${this.largeInfowindow.anchor.title}</div>`
+                    );
+                }
+            }
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
                     infowindow.setContent(selectedMarker.title);
@@ -65,6 +93,12 @@ const gmaps = {
                     infowindow.addListener('closeclick', function() {
                         infowindow.marker = null;
                     });
+
+                    const SVService = new google.maps.StreetViewService();
+                    const rad = 50;
+
+                    SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
+
                     infowindow.open(map, selectedMarker);
                 }
             }
