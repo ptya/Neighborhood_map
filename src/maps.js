@@ -5,14 +5,15 @@ const gmaps = {
         GoogleMapsLoader.KEY = 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU';
         GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
 
-        const mapEl = document.getElementById('map-canvas');
-        const options = {
-            center: {lat: 47.509205473526436, lng: 19.035126200000036},
-            zoom: 15,
-            // styles: styles,
-            mapTypeControl: false
-        };
         GoogleMapsLoader.load(function(google) {
+            const mapEl = document.getElementById('map-canvas');
+            const bp = new google.maps.LatLng(47.4979, 19.0402);
+            const options = {
+                center: bp,
+                zoom: 15,
+                // styles: styles,
+                mapTypeControl: false
+            };
             window.map = new google.maps.Map(mapEl, options);
             window.markers = [];
             window.largeInfowindow = new google.maps.InfoWindow();
@@ -98,7 +99,8 @@ const gmaps = {
                     const SVService = new google.maps.StreetViewService();
                     const rad = 50;
 
-                    SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
+                    // SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
+                    SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
 
                     infowindow.open(map, selectedMarker);
                 }

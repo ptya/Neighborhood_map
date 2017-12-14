@@ -2004,27 +2004,33 @@ ko.applyBindings(new ViewModel());
 const places = [
     {
         title: "Városmajor",
-        position: {lat: 47.507904, lng: 19.017603}
+        position: {lat: 47.5078037, lng: 19.017604699999993},
+        place_id: "ChIJNYMnvrzeQUcRSwlMyQRFsuA"
     },
     {
-        title: "CoolTour",
-        position: {lat: 47.5098299, lng: 19.0244666}
+        title: "Cooltour Bar III.",
+        position: {lat: 47.50986779999999, lng: 19.02450190000002},
+        place_id: "ChIJSQFT26beQUcRScnVLv-m26U"
     },
     {
-        title: "Mátyás Templom",
-        position: {lat: 47.5019537, lng: 19.0341617}
+        title: "Matthias Church",
+        position: {lat: 47.5019537, lng: 19.034161700000027},
+        place_id: "ChIJ1yuefiLcQUcR1Uppb4xy0GI"
     },
     {
-        title: "Margitszigeti szökőkút",
-        position: {lat: 47.5187803, lng: 19.0447954}
+        title: "Margaret Island Fountain",
+        position: {lat: 47.5187803, lng: 19.044795399999998},
+        place_id: "ChIJO4BOFgfcQUcRwlgwK3OK1Fk"
     },
     {
-        title: "Hold utcai Vásárcsarnok",
-        position: {lat: 47.504828, lng: 19.0526494}
+        title: "Hold Street Market and Downtown Market",
+        position: {lat: 47.50482799999999, lng: 19.052649400000064},
+        place_id: "ChIJc7gZbhPcQUcRjPopkeIJEhA"
     },
     {
-        title: "Pontoon",
-        position: {lat: 47.4996289, lng: 19.046212}
+        title: "PONTOON",
+        position: {lat: 47.4996289, lng: 19.04621199999997},
+        place_id: "ChIJXXOqGD7cQUcRLF8-QKqmVDM"
     }
 ];
 
@@ -2038,14 +2044,15 @@ const gmaps = {
         GoogleMapsLoader.KEY = 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU';
         GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
 
-        const mapEl = document.getElementById('map-canvas');
-        const options = {
-            center: {lat: 47.509205473526436, lng: 19.035126200000036},
-            zoom: 15,
-            // styles: styles,
-            mapTypeControl: false
-        };
         GoogleMapsLoader.load(function(google) {
+            const mapEl = document.getElementById('map-canvas');
+            const bp = new google.maps.LatLng(47.4979, 19.0402);
+            const options = {
+                center: bp,
+                zoom: 15,
+                // styles: styles,
+                mapTypeControl: false
+            };
             window.map = new google.maps.Map(mapEl, options);
             window.markers = [];
             window.largeInfowindow = new google.maps.InfoWindow();
@@ -2131,7 +2138,8 @@ const gmaps = {
                     const SVService = new google.maps.StreetViewService();
                     const rad = 50;
 
-                    SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
+                    // SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
+                    SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
 
                     infowindow.open(map, selectedMarker);
                 }
@@ -2203,6 +2211,7 @@ module.exports = gmaps;
 const Place = function (data) {
     this.title = data.title;
     this.position = data.position;
+    this.place_id = data.place_id;
 };
 
 module.exports = Place;
