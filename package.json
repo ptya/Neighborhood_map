@@ -18,6 +18,7 @@
   "homepage": "https://github.com/ptya/Neighborhood_map#readme",
   "dependencies": {
     "google-maps": "^3.2.1",
+    "node-foursquare-venues": "^1.1.0",
     "underscore": "^1.8.3"
   }
 }
