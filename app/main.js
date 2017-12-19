@@ -9805,6 +9805,7 @@ module.exports = places;
 
 },{}],44:[function(require,module,exports){
 const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
+const fsq_api = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
 
 const gmaps = {
     initMaps: function() {
@@ -9871,9 +9872,9 @@ const gmaps = {
                         loc, this.largeInfowindow.anchor.position
                     );
                     this.largeInfowindow.setContent(
-                        `<div>${this.largeInfowindow.anchor.title}</div><div id="pano"></div>`
+                        `<div>${this.largeInfowindow.anchor.title}</div><div id="fsq"></div><div id="pano"></div>`
                     );
-
+                    console.log(this.largeInfowindow);
                     const options = {
                         position: loc,
                         pov: {
@@ -9893,11 +9894,40 @@ const gmaps = {
                     );
                 }
             }
+            function venueCallback(err, resp) {
+                console.log(resp);
+                const venue = resp.response.venue;
+                console.log(venue.name);
+                const status = venue.hours ? venue.hours.status : '';
+                console.log(status);
+                const rating = venue.rating;
+                console.log(rating);
+                const photos = venue.photos;
+                const photo_cnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
+                for (let i = 0; i < photo_cnt; i++) {
+                    const photo = photos.groups[0].items[i];
+                    console.log(photo);
+                    const url = `${photo.prefix}200x200${photo.suffix}`;
+                    console.log(url);
+                }
+            }
+            function searchCallback(err, resp) {
+                console.log(resp);
+                const venueID = resp.response.venues[0].id;
+                fsq_api.venues.venue(venueID,venueCallback);
+            }
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
                     infowindow.setContent(selectedMarker.title);
                     infowindow.marker = selectedMarker;
-
+                    console.log(selectedMarker);
+                    console.log(selectedMarker.position.lat());
+                    console.log(selectedMarker.position.lng());
+                    const searchObj = {
+                        ll: `${selectedMarker.position.lat()},${selectedMarker.position.lng()}`,
+                        query: selectedMarker.title
+                    };
+                    fsq_api.venues.search(searchObj, searchCallback)
                     infowindow.addListener('closeclick', function() {
                         infowindow.marker = null;
                     });
@@ -9974,7 +10004,7 @@ const gmaps = {
 
 
 module.exports = gmaps;
-},{"google-maps":39}],45:[function(require,module,exports){
+},{"google-maps":39,"node-foursquare-venues":40}],45:[function(require,module,exports){
 const Place = function (data) {
     this.title = data.title;
     this.position = data.position;
