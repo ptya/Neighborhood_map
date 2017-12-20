@@ -86,7 +86,7 @@ const ViewModel = function() {
     });
 
     this.clickPlace = (place) => {
-        console.log(place.title());
+        gmaps.selectMarker(place);
     };
 };
 

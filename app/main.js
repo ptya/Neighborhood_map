@@ -9724,7 +9724,7 @@ const ViewModel = function() {
     });
 
     this.clickPlace = (place) => {
-        console.log(place.title());
+        gmaps.selectMarker(place);
     };
 };
 
@@ -10033,6 +10033,16 @@ const gmaps = {
                 };
             });
         }
+    },
+    selectMarker: function(place) {
+        GoogleMapsLoader.load(function(google) {
+            const markers = window.markers;
+            markers.forEach((marker) => {
+                if (place.title === marker.title) {
+                    google.maps.event.trigger(marker, 'click');
+                }
+            });
+        });
     }
 }
 
