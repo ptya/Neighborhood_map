@@ -120,10 +120,11 @@ const gmaps = {
                     const a = document.createElement("a");
                     a.setAttribute("href", origUrl);
                     a.setAttribute("target", "_blank");
+                    a.setAttribute("class", "place-img-ele")
                     const photoEl = document.createElement("img");
                     photoEl.setAttribute("src", thumbUrl);
                     photoEl.setAttribute("alt", "Photo of place");
-                    photoEl.setAttribute("class", "place-img-ele");
+                    // photoEl.setAttribute("class", "place-img-ele");
                     a.appendChild(photoEl);
                     imgContainer.appendChild(a);
 

@@ -16,7 +16,7 @@ body {
 }
 
 #pano {
-  height: 19rem;
+  height: 19.15rem;
   width: 20rem;
 }
 
@@ -111,8 +111,12 @@ body {
 .place-img-ele {
   display: block;
   margin: auto;
-  margin-top: 0.1em;
-  margin-bottom: 0.1em;
+  margin-bottom: 0.2rem;
+  margin-left: 0.2rem;
+}
+
+.place-img-ele:last-of-type {
+  margin-bottom: 0;
 }
 
 /*.menu {
