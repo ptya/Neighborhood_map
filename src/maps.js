@@ -132,7 +132,9 @@ const gmaps = {
 
                 const title = document.getElementById("info-title");
                 let newTitle = title.innerHTML;
-                newTitle += ` <span style="info-status">(${status})</span>`;
+                if (status !== '') {
+                    newTitle += ` <span style="info-status">(${status})</span>`;
+                }
                 title.innerHTML = newTitle;
 
                 const fsq_el = document.getElementById("fsq");

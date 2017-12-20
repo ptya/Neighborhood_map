@@ -6,11 +6,11 @@ const fsq = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
 Things that should not be handled by Knockout:
- - anything the Maps API is used for,
- - creating markers,
- - tracking click events on markers,
- - making the map,
- - refreshing the map.
+- anything the Maps API is used for,
+- creating markers,
+- tracking click events on markers,
+- making the map,
+- refreshing the map.
 
 Note 1: Tracking click events on list items should be handled with Knockout.
 Note 2: Creating your markers as a part of your ViewModel is allowed (and recommended). Creating them as Knockout observables is not.
@@ -20,6 +20,7 @@ const menuIco = document.getElementById('menu-bar');
 const menuClose = document.getElementById('menu-close');
 const menu = document.getElementById('menu');
 const title = document.getElementById('title');
+const input = document.getElementById("filter-locations-text")
 
 function moveMenu() {
     gmaps.resize();
@@ -88,6 +89,15 @@ const ViewModel = function() {
     this.clickPlace = (place) => {
         gmaps.selectMarker(place);
     };
+
+    this.enterPlace = () => {
+        if (this.filterInput()) {
+            gmaps.selectMarker(this.markerList()[0]);
+        }
+    };
+    input.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) this.enterPlace()
+    });
 };
 
 
@@ -103,23 +113,3 @@ masterVM = {
 }
 */
 ko.applyBindings(new ViewModel());
-
-const infoObj = {venue_id: '51aa67da498ef9ce6a081be2'};
-fsq.venues.venue('51aa67da498ef9ce6a081be2', fsqCallback);
-
-function fsqCallback(err, resp) {
-    console.log(resp);
-    const venue = resp.response.venue;
-    const status = venue.hours.status;
-    console.log(status);
-    const rating = venue.rating;
-    console.log(rating);
-    const photos = venue.photos;
-    const photo_cnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-    for (let i = 0; i < photo_cnt; i++) {
-        const photo = photos.groups[0].items[i];
-        console.log(photo);
-        const url = `${photo.prefix}200x200${photo.suffix}`;
-        console.log(url);
-    }
-}
