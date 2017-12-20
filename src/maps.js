@@ -66,7 +66,13 @@ const gmaps = {
                         loc, this.largeInfowindow.anchor.position
                     );
                     this.largeInfowindow.setContent(
-                        `<div>${this.largeInfowindow.anchor.title}</div><div id="fsq"></div><div id="pano"></div>`
+                        `<div id="info-title">
+                            <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                        </div>
+                        <div class="flex-container flex-center">
+                            <div id="pano"></div>
+                            <div id="fsq"></div>
+                        </div>`
                     );
                     console.log(this.largeInfowindow);
                     const options = {
@@ -84,7 +90,10 @@ const gmaps = {
                 } else {
                     console.log(':(');
                     this.largeInfowindow.setContent(
-                        `<div>${this.largeInfowindow.anchor.title}</div>`
+                        `<div id="info-title">
+                            <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                        </div>
+                        <div id="fsq"></div>`
                     );
                 }
             }
@@ -96,14 +105,38 @@ const gmaps = {
                 console.log(status);
                 const rating = venue.rating;
                 console.log(rating);
+
                 const photos = venue.photos;
                 const photo_cnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
+                const imgContainer = document.createElement("div");
+                imgContainer.setAttribute("class", "flex-container flex-column");
+
                 for (let i = 0; i < photo_cnt; i++) {
                     const photo = photos.groups[0].items[i];
                     console.log(photo);
-                    const url = `${photo.prefix}200x200${photo.suffix}`;
-                    console.log(url);
+                    const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
+                    const origUrl = `${photo.prefix}original${photo.suffix}`;
+                    console.log(thumbUrl);
+                    const a = document.createElement("a");
+                    a.setAttribute("href", origUrl);
+                    a.setAttribute("target", "_blank");
+                    const photoEl = document.createElement("img");
+                    photoEl.setAttribute("src", thumbUrl);
+                    photoEl.setAttribute("alt", "Photo of place");
+                    photoEl.setAttribute("class", "place-img-ele");
+                    a.appendChild(photoEl);
+                    imgContainer.appendChild(a);
+
                 }
+
+                const title = document.getElementById("info-title");
+                let newTitle = title.innerHTML;
+                newTitle += ` <span style="info-status">(${status})</span>`;
+                title.innerHTML = newTitle;
+
+                const fsq_el = document.getElementById("fsq");
+                fsq_el.appendChild(imgContainer);
+                largeInfowindow.open(map);
             }
             function searchCallback(err, resp) {
                 console.log(resp);

@@ -24,7 +24,7 @@ const places = [
         fsq_id: "4db43dc1fa8c350240e05a26"
     },
     {
-        title: "Hold Street Market and Downtown Market",
+        title: "Hold Street Market",
         position: {lat: 47.50482799999999, lng: 19.052649400000064},
         place_id: "ChIJc7gZbhPcQUcRjPopkeIJEhA",
         fsq_id: "4bd02be477b29c74233a8a82"

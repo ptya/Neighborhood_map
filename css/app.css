@@ -16,13 +16,21 @@ body {
 }
 
 #pano {
-  height: 15rem;
+  height: 19rem;
   width: 20rem;
 }
 
 
 .flex-container {
   display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-center {
+  align-items: center;
 }
 
 .menu {
@@ -98,6 +106,13 @@ body {
 
 .move-title {
   transform: translate(-0.5em);
+}
+
+.place-img-ele {
+  display: block;
+  margin: auto;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
 }
 
 /*.menu {
