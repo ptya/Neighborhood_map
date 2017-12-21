@@ -2,7 +2,8 @@ html,
 body {
   height: 100vh;
   margin: 0;
-  /* width: 100%; */
+  background-color: #f8f8f8;
+  font-family: "Roboto", Helvetica, sans-serif;
 }
 
 #map-canvas {
