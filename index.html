@@ -16,17 +16,18 @@
         <div id="menu" class="menu">
             <h1>Cool Locations</h1>
             <i id="menu-close" class="fa fa-times fa-2x x-button fade-in" aria-hidden="true"></i>
-            <div class="flex-container">
-                <input id="filter-locations-text" class="filter-input"
+            <div class="form-inline">
+                <i class="fa fa-filter fa-lg filter-ico" aria-hidden="true"></i>
+                <input id="filter-locations-text" class="form-control"
                     data-bind="textInput: filterInput" type="text"
-                    placeholder="Enter your favorite area!">
-                <a class="btn btn-small btn-info" href="#">
-                    <i class="fa fa-filter" aria-hidden="true"></i> Filter
+                    placeholder="Type to filter results..">
+            </div>
+            <hr>
+            <div class="list-group" data-bind="foreach: markerList">
+                <a href="#" class="list-group-item list-group-item-action" data-bind="text: title, click: $parent.clickPlace">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
                 </a>
             </div>
-            <ul data-bind="foreach: markerList">
-                <li><a href="#" data-bind="text: title, click: $parent.clickPlace"></a></li>
-            </ul>
         </div>
 
         <div class="main">

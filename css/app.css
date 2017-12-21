@@ -53,6 +53,11 @@ body {
   flex-grow: 1;
 }
 
+.filter-ico {
+  margin-right: 0.5em;
+  color: #3b3b3b9c;
+}
+
 .x-button {
   display: block;
   opacity: 1;
