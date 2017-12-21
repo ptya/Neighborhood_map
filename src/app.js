@@ -1,7 +1,6 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
 const gmaps = require('./maps');
 const _ = require('underscore'); // eslint-disable-line import/no-unresolved
-const fsq = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
