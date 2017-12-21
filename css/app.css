@@ -6,7 +6,12 @@ body {
   font-family: "Roboto", Helvetica, sans-serif;
 }
 
+h1 {
+  font-size: 2rem;
+}
+
 #map-canvas {
+  border: solid 1px #ccc;
   bottom:0;
   height: 90vh;
   left: 0;
@@ -48,9 +53,17 @@ body {
   padding: 1em 0 1em 0;
 }
 
+.nowrap {
+  flex-flow: nowrap;
+}
+
 .filter-ico {
   margin-right: 0.5em;
   color: #3b3b3b9c;
+}
+
+.filter-input {
+  flex-grow: 1;
 }
 
 .x-button {
