@@ -9873,8 +9873,8 @@ const gmaps = {
                     const options = {
                         position: loc,
                         pov: {
-                            heading: heading,
-                            pitch: 20
+                            heading: heading - 15,
+                            pitch: 5
                         },
                         disableDefaultUI: true
                     };
@@ -9883,15 +9883,17 @@ const gmaps = {
                         document.getElementById('pano'), options
                     );
 
+                    let change = 1;
                     const move = setInterval(() => {
                         let pov = panorama.getPov();
-                        pov.heading += 0.1;
-                        pov.pitch += 0.05;
+                        pov.heading += change;
+                        pov.pitch += change * 0.8999;
                         panorama.setPov(pov);
+                        change *= 0.95;
                     }, 10);
                     setTimeout(() => {
                         clearInterval(move);
-                    }, 1000);
+                    }, 1500);
                 } else {
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
