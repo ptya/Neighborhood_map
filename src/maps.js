@@ -96,7 +96,6 @@ const gmaps = {
                 }
             }
             function venueCallback(err, resp) {
-                console.log(resp);
                 if (!err) {
                     const venue = resp.response.venue;
                     const status = venue.hours ? venue.hours.status : '';
