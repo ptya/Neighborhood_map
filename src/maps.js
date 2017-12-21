@@ -172,6 +172,11 @@ const gmaps = {
             }
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
+                    const listItem = document.getElementById(selectedMarker.id);
+                    let prevListItem;
+                    if (infowindow.marker) {
+                        prevListItem = document.getElementById(infowindow.marker.id);
+                    }
                     infowindow.setContent(selectedMarker.title);
                     infowindow.marker = selectedMarker;
                     const searchObj = {
@@ -190,6 +195,10 @@ const gmaps = {
                     SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
 
                     infowindow.open(map, selectedMarker);
+                    listItem.classList.toggle("active");
+                    if (prevListItem) {
+                        prevListItem.classList.toggle("active");
+                    }
                 }
             }
 
@@ -200,7 +209,8 @@ const gmaps = {
                 map: map,
                 title: place.title,
                 animation: google.maps.Animation.DROP,
-                icon: defaultIcon
+                icon: defaultIcon,
+                id: place.id
             });
 
             window.markers.push(marker);

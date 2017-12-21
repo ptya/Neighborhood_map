@@ -24,7 +24,10 @@
             </div>
             <hr>
             <div class="list-group" data-bind="foreach: markerList">
-                <a href="#" class="list-group-item list-group-item-action" data-bind="text: title, click: $parent.clickPlace">
+                <a href="#" class="list-group-item list-group-item-action"
+                    data-bind="text: title,
+                               click: $parent.clickPlace,
+                               attr: {'id': id}">
                     <i class="fa fa-map-marker" aria-hidden="true"></i>
                 </a>
             </div>

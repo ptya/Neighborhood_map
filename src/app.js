@@ -61,7 +61,7 @@ menuClose.addEventListener('click', moveMenu);
 const Place = require('./models/Place');
 const places = require('./data/places');
 
-const ViewModel = function() {
+window.ViewModel = function() {
     gmaps.initMaps();
     const placesList = [];
     places.forEach((place) => {
@@ -70,7 +70,8 @@ const ViewModel = function() {
         placesList.push(placeItem);
     });
 
-    this.filterInput = ko.observable()
+    this.filterInput = ko.observable();
+    this.activePlace = ko.observable();
     this.previousList = [];
     this.markerList = ko.computed(() => {
         let filteredList = (this.filterInput() == null) ?
@@ -112,4 +113,4 @@ masterVM = {
     vmC : new VmC(),
 }
 */
-ko.applyBindings(new ViewModel());
+ko.applyBindings(new window.ViewModel());
