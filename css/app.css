@@ -119,6 +119,25 @@ body {
   margin-bottom: 0;
 }
 
+.info-title {
+  display: block;
+  font-size: 1.5em;
+  font-weight: 400;
+  margin: 0.3em 0;
+  text-transform: uppercase;
+}
+
+.info-clear {
+  clear: both;
+}
+
+.info {
+  display: inline-block;
+  font-style: italic;
+  margin: 0 0.5em 0.2em;
+}
+
+    /* display: block; */
 /*.menu {
   height: 100%;
   min-width: 20%;

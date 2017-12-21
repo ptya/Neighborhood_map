@@ -9892,10 +9892,16 @@ const gmaps = {
                 }
             }
             function venueCallback(err, resp) {
+                console.log(resp);
                 if (!err) {
                     const venue = resp.response.venue;
                     const status = venue.hours ? venue.hours.status : '';
                     const rating = venue.rating;
+                    const categories = venue.categories;
+                    let category;
+                    if (categories) {
+                        category = categories[0].name;
+                    }
 
                     const photos = venue.photos;
                     const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
@@ -9919,14 +9925,16 @@ const gmaps = {
 
                     const title = document.getElementById("info-title");
                     let newTitle = title.innerHTML;
+                    if (category) {
+                        newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+                    }
                     if (status !== '') {
-                        newTitle += ` <span style="info-status">(${status})</span>`;
+                        newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+                    }
+                    if (rating) {
+                        newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
                     }
                     title.innerHTML = newTitle;
-                    if (rating) {
-                        //TODO add rating as span too
-                        console.log(rating);
-                    }
                     const fsqEl = document.getElementById("fsq");
                     fsqEl.appendChild(imgContainer);
                     largeInfowindow.open(map);
