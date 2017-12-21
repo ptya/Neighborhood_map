@@ -78,7 +78,7 @@ const gmaps = {
                         position: loc,
                         pov: {
                             heading: heading,
-                            pitch: 25
+                            pitch: 20
                         },
                         disableDefaultUI: true
                     };
@@ -86,6 +86,16 @@ const gmaps = {
                     const panorama = new google.maps.StreetViewPanorama(
                         document.getElementById('pano'), options
                     );
+
+                    const move = setInterval(() => {
+                        let pov = panorama.getPov();
+                        pov.heading += 0.1;
+                        pov.pitch += 0.05;
+                        panorama.setPov(pov);
+                    }, 10);
+                    setTimeout(() => {
+                        clearInterval(move);
+                    }, 1000);
                 } else {
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
