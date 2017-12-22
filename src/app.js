@@ -103,7 +103,6 @@ window.ViewModel = function() {
     });
 };
 
-
 /*
 Multiple viewmodels:
 If they all need to be on the same page, one easy way to do this is to have a master view model containing an array (or property list)

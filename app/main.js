@@ -9741,7 +9741,6 @@ window.ViewModel = function() {
     });
 };
 
-
 /*
 Multiple viewmodels:
 If they all need to be on the same page, one easy way to do this is to have a master view model containing an array (or property list)
@@ -10083,7 +10082,6 @@ const gmaps = {
     }
 }
 
-
 module.exports = gmaps;
 },{"./modal":45,"google-maps":39,"node-foursquare-venues":40}],45:[function(require,module,exports){
 const modal = {
@@ -10093,10 +10091,6 @@ const modal = {
         closeModalBtn.addEventListener('click', function() {
             modal.style.display = 'none';
         })
-    },
-    getModalElements: function() {
-        return [document.getElementById('myModal'),
-                document.getElementById('imgModal')];
     },
     updateModal: function(src) {
         const modal = document.getElementById('myModal');

@@ -6,10 +6,6 @@ const modal = {
             modal.style.display = 'none';
         })
     },
-    getModalElements: function() {
-        return [document.getElementById('myModal'),
-                document.getElementById('imgModal')];
-    },
     updateModal: function(src) {
         const modal = document.getElementById('myModal');
         const modalImg = document.getElementById('imgModal');

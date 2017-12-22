@@ -278,5 +278,4 @@ const gmaps = {
     }
 }
 
-
 module.exports = gmaps;
