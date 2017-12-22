@@ -219,9 +219,60 @@ h1 {
   transform: rotate(-90deg);
 }
 
+
+
 @media only screen and (max-width: 700px) {
+  .modal {
+    padding: 0;
+  }
   .modal-content {
     width: 100%;
+  }
+  .close-modal {
+    top: 0;
+    right: 0.5em;
+  }
+  .info {
+    display: block;
+  }
+  .menu {
+    flex: 4;
+  }
+  .main {
+    flex: 1;
+  }
+  .hidden-menu {
+    flex: 0;
+    padding: 1em 0 1em 0;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .menu {
+    display: block;
+    width: 100%;
+  }
+  .main {
+    flex: 1;
+    flex-grow: 1;
+  }
+  .hidden-menu {
+    display: block;
+    width: 0;
+    padding: 1em 0 1em 0;
+  }
+}
+
+@media only screen and (min-width: 701px) and (max-width: 1024px) {
+  .menu {
+    flex: 2;
+  }
+  .main {
+    flex: 3;
+  }
+  .hidden-menu {
+    flex: 0;
+    padding: 1em 0 1em 0;
   }
 }
 

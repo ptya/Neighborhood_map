@@ -33,16 +33,18 @@ const gmaps = {
     },
     resize: function() {
         const map = window.map;
-        const center = map.getCenter();
-        GoogleMapsLoader.load(function(google) {
-            const repeatResize = setInterval(function(){
-                google.maps.event.trigger(map, "resize");
-                map.panTo(center);
-            }, 5);
-            setTimeout(function(){
-                clearTimeout(repeatResize);
-            }, 300);
-        });
+        if (map) {
+            const center = map.getCenter();
+            GoogleMapsLoader.load(function(google) {
+                const repeatResize = setInterval(function(){
+                    google.maps.event.trigger(map, "resize");
+                    map.panTo(center);
+                }, 5);
+                setTimeout(function(){
+                    clearTimeout(repeatResize);
+                }, 300);
+            });
+        }
     },
     createMarker: function(place) {
         GoogleMapsLoader.load(function(google) {

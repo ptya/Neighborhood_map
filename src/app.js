@@ -59,6 +59,49 @@ menuClose.addEventListener('click', moveMenu);
 /* Hanlding the modal */
 modal.init();
 
+// media query change
+function closedMenu() {
+    menu.classList.add('hidden-menu');
+    menuClose.classList.add('fade-out');
+    menuClose.classList.remove('fade-in');
+    menuIco.classList.add('fade-in');
+    menuIco.classList.remove('fade-out');
+    title.classList.add('fade-in');
+    title.classList.add('move-title');
+    title.classList.remove('fade-out');
+    gmaps.resize();
+}
+
+function openedMenu() {
+    menu.classList.remove('hidden-menu');
+    menuClose.classList.remove('fade-out');
+    menuClose.classList.add('fade-in');
+    menuIco.classList.remove('fade-in');
+    menuIco.classList.add('fade-out');
+    title.classList.remove('fade-in');
+    title.classList.remove('move-title');
+    title.classList.add('fade-out');
+    gmaps.resize();
+}
+
+/* Check for media size */
+let smallSize;
+if (matchMedia) {
+    const mq = window.matchMedia("(max-width: 1024px)");
+    smallSize = window.matchMedia('(max-width: 700px)');
+    mq.addListener(WidthChange);
+    WidthChange(mq);
+}
+
+function WidthChange(mq) {
+    if (mq.matches) {
+        console.log('window width is at least 1024px');
+        closedMenu();
+    } else {
+      console.log('window width is more than 1024px');
+      openedMenu();
+    }
+}
 /* knockout test here */
 const Place = require('./models/Place');
 const places = require('./data/places');
@@ -90,7 +133,14 @@ window.ViewModel = function() {
     });
 
     this.clickPlace = (place) => {
-        gmaps.selectMarker(place);
+        if(smallSize.matches) {
+            closedMenu();
+            setTimeout(() => {
+                gmaps.selectMarker(place);
+            }, 300);
+        } else {
+            gmaps.selectMarker(place);
+        }
     };
 
     this.enterPlace = () => {
