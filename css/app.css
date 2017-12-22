@@ -77,6 +77,7 @@ h1 {
 }
 
 .x-button:hover {
+  cursor: pointer;
   transform: rotate(-90deg);
 }
 
@@ -88,6 +89,10 @@ h1 {
 
 .menu-ico {
   position: absolute;
+}
+
+.menu-ico:hover {
+  cursor: pointer;
 }
 
 .max-height {
@@ -127,10 +132,16 @@ h1 {
   margin: auto;
   margin-bottom: 0.2rem;
   margin-left: 0.2rem;
+  transition: 0.3s;
 }
 
 .place-img-ele:last-of-type {
   margin-bottom: 0;
+}
+
+.place-img-ele:hover {
+  opacity: 0.7;
+  cursor: pointer;
 }
 
 .info-title {
@@ -148,7 +159,70 @@ h1 {
 .info {
   display: inline-block;
   font-style: italic;
-  margin: 0 0.5em 0.2em;
+  margin: 0 0.5em 0.5em;
+}
+
+/* Modal */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  padding: 1em 0 1em 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: #000;
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+}
+
+/* Animating modal */
+
+.modal-content {
+  -webkit-animation-name: zoom;
+  -webkit-animation-duration: 0.5s;
+  animation-name: zoom;
+  animation-duration: 0.5s;
+}
+
+@-webkit-keyframes zoom {
+  from {-webkit-transform: scale(0)}
+  to {-webkit-transform: scale(1)}
+}
+
+@keyframes zoom {
+  from {transform: scale(0)}
+  to {transform: scale(1)}
+}
+
+.close-modal {
+  position: absolute;
+  top: 1em;
+  right: 2em;
+  color: #ccc;
+  font-size: 3em;
+  font-weight: bold;
+  transition: transform 0.2s ease-in-out;
+}
+
+.close-modal:hover {
+  cursor: pointer;
+  transform: rotate(-90deg);
+}
+
+@media only screen and (max-width: 700px) {
+  .modal-content {
+    width: 100%;
+  }
 }
 
     /* display: block; */

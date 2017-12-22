@@ -1,5 +1,6 @@
 const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
 const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
+const modal = require('./modal');
 
 const gmaps = {
     initMaps: function() {
@@ -122,20 +123,20 @@ const gmaps = {
                     const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
                     const imgContainer = document.createElement("div");
                     imgContainer.setAttribute("class", "flex-container flex-column");
-
                     for (let i = 0; i < photoCnt; i++) {
                         const photo = photos.groups[0].items[i];
                         const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
                         const origUrl = `${photo.prefix}original${photo.suffix}`;
                         const a = document.createElement("a");
-                        a.setAttribute("href", origUrl);
-                        a.setAttribute("target", "_blank");
                         a.setAttribute("class", "place-img-ele")
                         const photoEl = document.createElement("img");
                         photoEl.setAttribute("src", thumbUrl);
                         photoEl.setAttribute("alt", "Photo of place");
                         a.appendChild(photoEl);
                         imgContainer.appendChild(a);
+                        a.addEventListener('click', function() {
+                            modal.updateModal(origUrl)
+                        });
                     }
 
                     const title = document.getElementById("info-title");
@@ -185,6 +186,10 @@ const gmaps = {
                     };
                     fsqAPI.venues.search(searchObj, searchCallback)
                     infowindow.addListener('closeclick', function() {
+                        if (infowindow.marker) {
+                            const currentItem = document.getElementById(infowindow.marker.id);
+                            currentItem.classList.toggle("active");
+                        }
                         infowindow.marker = null;
                     });
 

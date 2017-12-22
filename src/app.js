@@ -1,6 +1,7 @@
 const ko = require('../lib/knockout/knockout-3.4.2');
 const gmaps = require('./maps');
 const _ = require('underscore'); // eslint-disable-line import/no-unresolved
+const modal = require('./modal');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -55,6 +56,8 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
+/* Hanlding the modal */
+modal.init();
 
 /* knockout test here */
 const Place = require('./models/Place');

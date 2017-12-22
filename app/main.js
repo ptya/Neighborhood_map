@@ -9639,7 +9639,7 @@ module.exports = function(appId, secretKey, version, mode){
 const ko = require('../lib/knockout/knockout-3.4.2');
 const gmaps = require('./maps');
 const _ = require('underscore'); // eslint-disable-line import/no-unresolved
-const fsq = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
+const modal = require('./modal');
 
 /*
 Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
@@ -9694,6 +9694,8 @@ function moveMenu() {
 menuIco.addEventListener('click', moveMenu);
 menuClose.addEventListener('click', moveMenu);
 
+/* Hanlding the modal */
+modal.init();
 
 /* knockout test here */
 const Place = require('./models/Place');
@@ -9752,7 +9754,7 @@ masterVM = {
 }
 */
 ko.applyBindings(new window.ViewModel());
-},{"../lib/knockout/knockout-3.4.2":38,"./data/places":43,"./maps":44,"./models/Place":45,"node-foursquare-venues":40,"underscore":41}],43:[function(require,module,exports){
+},{"../lib/knockout/knockout-3.4.2":38,"./data/places":43,"./maps":44,"./modal":45,"./models/Place":46,"underscore":41}],43:[function(require,module,exports){
 const places = [
     {
         id: "place-0",
@@ -9803,6 +9805,7 @@ module.exports = places;
 },{}],44:[function(require,module,exports){
 const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
 const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
+const modal = require('./modal');
 
 const gmaps = {
     initMaps: function() {
@@ -9925,20 +9928,20 @@ const gmaps = {
                     const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
                     const imgContainer = document.createElement("div");
                     imgContainer.setAttribute("class", "flex-container flex-column");
-
                     for (let i = 0; i < photoCnt; i++) {
                         const photo = photos.groups[0].items[i];
                         const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
                         const origUrl = `${photo.prefix}original${photo.suffix}`;
                         const a = document.createElement("a");
-                        a.setAttribute("href", origUrl);
-                        a.setAttribute("target", "_blank");
                         a.setAttribute("class", "place-img-ele")
                         const photoEl = document.createElement("img");
                         photoEl.setAttribute("src", thumbUrl);
                         photoEl.setAttribute("alt", "Photo of place");
                         a.appendChild(photoEl);
                         imgContainer.appendChild(a);
+                        a.addEventListener('click', function() {
+                            modal.updateModal(origUrl)
+                        });
                     }
 
                     const title = document.getElementById("info-title");
@@ -9988,6 +9991,10 @@ const gmaps = {
                     };
                     fsqAPI.venues.search(searchObj, searchCallback)
                     infowindow.addListener('closeclick', function() {
+                        if (infowindow.marker) {
+                            const currentItem = document.getElementById(infowindow.marker.id);
+                            currentItem.classList.toggle("active");
+                        }
                         infowindow.marker = null;
                     });
 
@@ -10078,7 +10085,29 @@ const gmaps = {
 
 
 module.exports = gmaps;
-},{"google-maps":39,"node-foursquare-venues":40}],45:[function(require,module,exports){
+},{"./modal":45,"google-maps":39,"node-foursquare-venues":40}],45:[function(require,module,exports){
+const modal = {
+    init: function() {
+        const modal = document.getElementById('myModal');
+        const closeModalBtn = document.getElementsByClassName('close-modal')[0];
+        closeModalBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        })
+    },
+    getModalElements: function() {
+        return [document.getElementById('myModal'),
+                document.getElementById('imgModal')];
+    },
+    updateModal: function(src) {
+        const modal = document.getElementById('myModal');
+        const modalImg = document.getElementById('imgModal');
+        modal.style.display = 'flex';
+        modalImg.src = src;
+    }
+}
+
+module.exports = modal;
+},{}],46:[function(require,module,exports){
 const Place = function (data) {
     this.id = data.id;
     this.title = data.title;
