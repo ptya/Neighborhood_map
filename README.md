@@ -24,14 +24,10 @@ For best experience, use [Google Chrome](https://www.google.com/chrome/browser/d
 
 
 # Installation :coffee:
-### Prerequisites: :video_game:
-- [Installed latest NPM](https://www.npmjs.com/get-npm)
 
 ## First time setup :boom:
 #### Environment setup
 1. Clone the repository
-2. Using your console `cd` into the repository's directory
-3. Use `npm install` and wait for it to complete setup
 
 # Usage :computer:
 1. Open `index.html` in your browser
