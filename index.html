@@ -1,11 +1,9 @@
-<!-- ANIMÁLNI AKARTAM A MENÜ ELTŰNÉST valami okossággal.. -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cool Overview Of Locations</title>
     <link rel='stylesheet' href="http://fonts.googleapis.com/css?family=Roboto:400,300,700">
     <link rel="stylesheet" href="lib/bootstrap-4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="lib/font-awesome-4.7.0/css/font-awesome.min.css">
@@ -14,7 +12,7 @@
 <body>
     <div class="flex-container max-height">
         <div id="menu" class="menu">
-            <h1>Cool Locations</h1>
+            <h1 data-bind="text: title"></h1>
             <i id="menu-close" class="fa fa-times fa-2x x-button fade-in" aria-hidden="true"></i>
             <div class="form-inline nowrap">
                 <i class="fa fa-filter fa-lg filter-ico" aria-hidden="true"></i>
@@ -32,11 +30,10 @@
                 </a>
             </div>
         </div>
-
         <div class="main">
             <div class="header">
                 <i id="menu-bar" class="fa fa-bars fa-lg menu-ico fade-out" aria-hidden="true"></i>
-                <h1 id="title" class="title fade-out">Cool Locations</h1>
+                <h1 id="title" class="title fade-out" data-bind="text: title"></h1>
             </div>
             <div id ="map-canvas" class="">
             </div>

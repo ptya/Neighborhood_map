@@ -26,6 +26,7 @@ h1 {
   width: 20rem;
 }
 
+/* General classes */
 
 .flex-container {
   display: flex;
@@ -39,6 +40,16 @@ h1 {
   align-items: center;
 }
 
+.nowrap {
+  flex-flow: nowrap;
+}
+
+.max-height {
+  height: 100vh;
+}
+
+/* Sidebar */
+
 .menu {
   flex: 1;
   overflow: hidden;
@@ -51,10 +62,6 @@ h1 {
 .hidden-menu {
   flex: 0;
   padding: 1em 0 1em 0;
-}
-
-.nowrap {
-  flex-flow: nowrap;
 }
 
 .filter-ico {
@@ -72,19 +79,12 @@ h1 {
   position: absolute;
   right: 0;
   top: 0.5em;
-  /* transition: transform .2s ease-in-out, visibility 0s .2s, opacity 0.5s linear; */
   visibility: visible;
 }
 
 .x-button:hover {
   cursor: pointer;
   transform: rotate(-90deg);
-}
-
-
-.main {
-  flex: 4;
-  padding: 1em;
 }
 
 .menu-ico {
@@ -95,9 +95,7 @@ h1 {
   cursor: pointer;
 }
 
-.max-height {
-  height: 100vh;
-}
+/* Header */
 
 .header {
   max-height: 10%;
@@ -107,6 +105,8 @@ h1 {
   margin-left: 1.5em;
   position: relative;
 }
+
+/* Header elements */
 
 .title {
   margin-left: 1.5em;
@@ -126,6 +126,15 @@ h1 {
 .move-title {
   transform: translate(-0.5em);
 }
+
+/* Main view */
+
+.main {
+  flex: 4;
+  padding: 1em;
+}
+
+/* Infowindow */
 
 .place-img-ele {
   display: block;
@@ -204,6 +213,8 @@ h1 {
   to {transform: scale(1)}
 }
 
+/* Close modal button */
+
 .close-modal {
   position: absolute;
   top: 1em;
@@ -219,7 +230,23 @@ h1 {
   transform: rotate(-90deg);
 }
 
+/* MEDIA QUERIES */
+/* Small view */
 
+@media only screen and (min-width: 701px) and (max-width: 1024px) {
+  .menu {
+    flex: 2;
+  }
+  .main {
+    flex: 3;
+  }
+  .hidden-menu {
+    flex: 0;
+    padding: 1em 0 1em 0;
+  }
+}
+
+/* Small tablet view */
 
 @media only screen and (max-width: 700px) {
   .modal {
@@ -247,66 +274,19 @@ h1 {
   }
 }
 
+/* Mobile view */
+
 @media only screen and (max-width: 500px) {
   .menu {
-    display: block;
-    width: 100%;
-  }
-  .main {
-    flex: 1;
-    flex-grow: 1;
+    background: #f8f8f8;
+    height: 100%;
+    width: 90%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 998;
   }
   .hidden-menu {
-    display: block;
     width: 0;
-    padding: 1em 0 1em 0;
   }
 }
-
-@media only screen and (min-width: 701px) and (max-width: 1024px) {
-  .menu {
-    flex: 2;
-  }
-  .main {
-    flex: 3;
-  }
-  .hidden-menu {
-    flex: 0;
-    padding: 1em 0 1em 0;
-  }
-}
-
-    /* display: block; */
-/*.menu {
-  height: 100%;
-  min-width: 20%;
-  max-width: 20%;
-  transition: all 1s;
-  left: 0;
-  flex: 1
-}
-
-.main {
-  flex: 4;
-}
-
-
-.map-container {
-  width: 100%;
-  height: 100%;
-}
-
-.wrapper {
-  height: 100%;
-}
-
-.menu-ico {
-  margin-left: 1.5em;
-}
-
-.move-left {
-  position: absolute;
-  min-width: 0;
-  max-width: 0;
-}
-*/

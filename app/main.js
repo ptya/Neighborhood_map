@@ -9636,174 +9636,6 @@ module.exports = function(appId, secretKey, version, mode){
 }.call(this));
 
 },{}],42:[function(require,module,exports){
-const ko = require('../lib/knockout/knockout-3.4.2');
-const gmaps = require('./maps');
-const _ = require('underscore'); // eslint-disable-line import/no-unresolved
-const modal = require('./modal');
-
-/*
-Download the Knockout framework. Knockout must be used to handle the list, filter, and any other information on the page that is subject to changing state.
-Things that should not be handled by Knockout:
-- anything the Maps API is used for,
-- creating markers,
-- tracking click events on markers,
-- making the map,
-- refreshing the map.
-
-Note 1: Tracking click events on list items should be handled with Knockout.
-Note 2: Creating your markers as a part of your ViewModel is allowed (and recommended). Creating them as Knockout observables is not.
-*/
-
-const menuIco = document.getElementById('menu-bar');
-const menuClose = document.getElementById('menu-close');
-const menu = document.getElementById('menu');
-const title = document.getElementById('title');
-const input = document.getElementById("filter-locations-text")
-
-function moveMenu() {
-    gmaps.resize();
-    menu.classList.toggle('hidden-menu');
-    if (menuClose.classList.contains('fade-out')) {
-        setTimeout(function() {
-            menuClose.classList.toggle('fade-out');
-            menuClose.classList.toggle('fade-in');
-        }, 400);
-    } else {
-        menuClose.classList.toggle('fade-out');
-        menuClose.classList.toggle('fade-in');
-    }
-    if (menuIco.classList.contains('fade-out')) {
-        setTimeout(function() {
-            menuIco.classList.toggle('fade-out');
-            menuIco.classList.toggle('fade-in');
-        }, 400);
-        setTimeout(function() {
-            title.classList.toggle('fade-out');
-            title.classList.toggle('fade-in');
-            title.classList.toggle('move-title');
-        }, 600);
-    } else {
-        menuIco.classList.toggle('fade-out');
-        menuIco.classList.toggle('fade-in');
-        title.classList.toggle('fade-out');
-        title.classList.toggle('fade-in');
-        title.classList.toggle('move-title');
-    }
-}
-
-menuIco.addEventListener('click', moveMenu);
-menuClose.addEventListener('click', moveMenu);
-
-/* Hanlding the modal */
-modal.init();
-
-// media query change
-function closedMenu() {
-    menu.classList.add('hidden-menu');
-    menuClose.classList.add('fade-out');
-    menuClose.classList.remove('fade-in');
-    menuIco.classList.add('fade-in');
-    menuIco.classList.remove('fade-out');
-    title.classList.add('fade-in');
-    title.classList.add('move-title');
-    title.classList.remove('fade-out');
-    gmaps.resize();
-}
-
-function openedMenu() {
-    menu.classList.remove('hidden-menu');
-    menuClose.classList.remove('fade-out');
-    menuClose.classList.add('fade-in');
-    menuIco.classList.remove('fade-in');
-    menuIco.classList.add('fade-out');
-    title.classList.remove('fade-in');
-    title.classList.remove('move-title');
-    title.classList.add('fade-out');
-    gmaps.resize();
-}
-
-/* Check for media size */
-let smallSize;
-if (matchMedia) {
-    const mq = window.matchMedia("(max-width: 1024px)");
-    smallSize = window.matchMedia('(max-width: 700px)');
-    mq.addListener(WidthChange);
-    WidthChange(mq);
-}
-
-function WidthChange(mq) {
-    if (mq.matches) {
-        console.log('window width is at least 1024px');
-        closedMenu();
-    } else {
-      console.log('window width is more than 1024px');
-      openedMenu();
-    }
-}
-/* knockout test here */
-const Place = require('./models/Place');
-const places = require('./data/places');
-
-window.ViewModel = function() {
-    gmaps.initMaps();
-    const placesList = [];
-    places.forEach((place) => {
-        const placeItem = new Place(place);
-        gmaps.createMarker(placeItem);
-        placesList.push(placeItem);
-    });
-
-    this.filterInput = ko.observable();
-    this.activePlace = ko.observable();
-    this.previousList = [];
-    this.markerList = ko.computed(() => {
-        let filteredList = (this.filterInput() == null) ?
-            placesList : placesList.filter((place) => {
-                return place.title.toLowerCase()
-                    .includes(this.filterInput().toLowerCase());
-            });
-        if (!_.isEqual(filteredList, this.previousList)) {
-            gmaps.filterMarkers(filteredList);
-            gmaps.centerMap();
-            this.previousList = filteredList;
-        }
-        return filteredList;
-    });
-
-    this.clickPlace = (place) => {
-        if(smallSize.matches) {
-            closedMenu();
-            setTimeout(() => {
-                gmaps.selectMarker(place);
-            }, 300);
-        } else {
-            gmaps.selectMarker(place);
-        }
-    };
-
-    this.enterPlace = () => {
-        if (this.filterInput()) {
-            gmaps.selectMarker(this.markerList()[0]);
-        }
-    };
-    input.addEventListener('keyup', (e) => {
-        if (e.keyCode === 13) this.enterPlace()
-    });
-};
-
-/*
-Multiple viewmodels:
-If they all need to be on the same page, one easy way to do this is to have a master view model containing an array (or property list)
-of the other view models.
-
-masterVM = {
-    vmA : new VmA(),
-    vmB : new VmB(),
-    vmC : new VmC(),
-}
-*/
-ko.applyBindings(new window.ViewModel());
-},{"../lib/knockout/knockout-3.4.2":38,"./data/places":43,"./maps":44,"./modal":45,"./models/Place":46,"underscore":41}],43:[function(require,module,exports){
 const places = [
     {
         id: "place-0",
@@ -9851,10 +9683,179 @@ const places = [
 
 module.exports = places;
 
-},{}],44:[function(require,module,exports){
-const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
+},{}],43:[function(require,module,exports){
+const gmaps = require('./modules/maps');
+const ko = require('../lib/knockout/knockout-3.4.2');
+const media = require('./modules/media');
+const modal = require('./modules/modal');
+const moveMenu = require('./modules/menu');
+const Place = require('./models/Place');
+const places = require('./data/places');
+const _ = require('underscore'); // eslint-disable-line import/no-unresolved
+
+const ViewModel = function() {
+    // Init functions
+    modal.init();
+    media.init();
+    gmaps.initMaps();
+
+    // Grab required elements
+    const menuIco = document.getElementById('menu-bar');
+    const menuClose = document.getElementById('menu-close');
+    const input = document.getElementById("filter-locations-text")
+
+    // Create places
+    const placesList = [];
+    places.forEach((place) => {
+        const placeItem = new Place(place);
+        gmaps.createMarker(placeItem);
+        placesList.push(placeItem);
+    });
+
+    // Set up KO observables
+    this.title = ko.observable('Cool Locations');
+    this.filterInput = ko.observable();
+    this.activePlace = ko.observable();
+    this.previousList = [];
+    this.markerList = ko.computed(() => {
+        let filteredList = (this.filterInput() == null) ?
+            placesList : placesList.filter((place) => {
+                return place.title.toLowerCase()
+                    .includes(this.filterInput().toLowerCase());
+            });
+        if (!_.isEqual(filteredList, this.previousList)) {
+            gmaps.filterMarkers(filteredList);
+            gmaps.centerMap();
+            this.previousList = filteredList;
+        }
+        return filteredList;
+    });
+
+    // Clicking on a list item
+    this.clickPlace = (place) => {
+        if(media.smallSize.matches) {
+            media.closedMenu();
+            setTimeout(() => {
+                gmaps.selectMarker(place);
+            }, 300);
+        } else {
+            gmaps.selectMarker(place);
+        }
+    };
+
+    // Hitting enter on the filter
+    this.enterPlace = () => {
+        if (this.filterInput()) {
+            gmaps.selectMarker(this.markerList()[0]);
+        }
+    };
+
+    // Add listeners
+    input.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) this.enterPlace()
+    });
+    menuIco.addEventListener('click', moveMenu);
+    menuClose.addEventListener('click', moveMenu);
+};
+
+ko.applyBindings(new ViewModel());
+},{"../lib/knockout/knockout-3.4.2":38,"./data/places":42,"./models/Place":44,"./modules/maps":46,"./modules/media":47,"./modules/menu":48,"./modules/modal":49,"underscore":41}],44:[function(require,module,exports){
+const Place = function (data) {
+    this.id = data.id;
+    this.title = data.title;
+    this.position = data.position;
+    this.place_id = data.place_id;
+    this.fsq_id = data.fsq_id;
+};
+
+module.exports = Place;
+},{}],45:[function(require,module,exports){
 const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
 const modal = require('./modal');
+
+function venueCallback(err, resp) {
+    if (!err) {
+        // Grab info of the place
+        const venue = resp.response.venue;
+        const status = venue.hours ? venue.hours.status : '';
+        const rating = venue.rating;
+        const categories = venue.categories;
+        let category;
+        if (categories) {
+            category = categories[0].name;
+        }
+
+        // Grab max 3 pictures of the place
+        const photos = venue.photos;
+        const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
+        const imgContainer = document.createElement("div");
+        imgContainer.setAttribute("class", "flex-container flex-column");
+        for (let i = 0; i < photoCnt; i++) {
+            const photo = photos.groups[0].items[i];
+            const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
+            const origUrl = `${photo.prefix}original${photo.suffix}`;
+            const a = document.createElement("a");
+            a.setAttribute("class", "place-img-ele")
+            const photoEl = document.createElement("img");
+            photoEl.setAttribute("src", thumbUrl);
+            photoEl.setAttribute("alt", "Photo of place");
+            a.appendChild(photoEl);
+            imgContainer.appendChild(a);
+            a.addEventListener('click', function() {
+                modal.updateModal(origUrl)
+            });
+        }
+
+        // Extend the title with available info
+        const title = document.getElementById("info-title");
+        let newTitle = title.innerHTML;
+        if (category) {
+            newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+        }
+        if (status !== '') {
+            newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+        }
+        if (rating) {
+            newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+        }
+        title.innerHTML = newTitle;
+
+        const fsqEl = document.getElementById("fsq");
+        fsqEl.appendChild(imgContainer);
+
+        // resize the map if infowindow does not fit
+        window.largeInfowindow.open(window.map);
+    } else {
+        console.log('Something went wrong with Foursquare API.');
+    }
+}
+
+function searchCallback(err, resp) {
+    if (!err) {
+        const venues = resp.response.venues;
+        if (venues.length > 0) {
+            const venueID = resp.response.venues[0].id;
+            fsqAPI.venues.venue(venueID, venueCallback);
+        } else {
+            console.log('Foursquare result not available.');
+        }
+    } else {
+        console.log('Something went wrong with Foursquare API.');
+    }
+}
+
+const fsq = {
+    search: function(searchObj) {
+        fsqAPI.venues.search(searchObj, searchCallback);
+    }
+}
+
+module.exports = fsq;
+},{"./modal":49,"node-foursquare-venues":40}],46:[function(require,module,exports){
+const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
+// const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
+const fsq = require('./fsq');
+// const modal = require('./modal');
 
 const gmaps = {
     initMaps: function() {
@@ -9867,7 +9868,6 @@ const gmaps = {
             const options = {
                 center: bp,
                 zoom: 15,
-                // styles: styles,
                 mapTypeControl: false
             };
             window.map = new google.maps.Map(mapEl, options);
@@ -9916,12 +9916,9 @@ const gmaps = {
                     new google.maps.Size(21,34));
                 return markerImage;
             }
+            // Adding streetview to infowindow
             function processStreetView(data, status) {
                 if (status === google.maps.StreetViewStatus.OK) {
-                    const loc = data.location.latLng;
-                    const heading = google.maps.geometry.spherical.computeHeading(
-                        loc, this.largeInfowindow.anchor.position
-                    );
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
                             <span class="info-title">${this.largeInfowindow.anchor.title}</span>
@@ -9930,6 +9927,10 @@ const gmaps = {
                             <div id="pano"></div>
                             <div id="fsq"></div>
                         </div>`
+                    );
+                    const loc = data.location.latLng;
+                    const heading = google.maps.geometry.spherical.computeHeading(
+                        loc, this.largeInfowindow.anchor.position
                     );
                     const options = {
                         position: loc,
@@ -9955,6 +9956,8 @@ const gmaps = {
                     setTimeout(() => {
                         clearInterval(move);
                     }, 1500);
+
+
                 } else {
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
@@ -9964,69 +9967,73 @@ const gmaps = {
                     );
                 }
             }
-            function venueCallback(err, resp) {
-                if (!err) {
-                    const venue = resp.response.venue;
-                    const status = venue.hours ? venue.hours.status : '';
-                    const rating = venue.rating;
-                    const categories = venue.categories;
-                    let category;
-                    if (categories) {
-                        category = categories[0].name;
-                    }
 
-                    const photos = venue.photos;
-                    const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-                    const imgContainer = document.createElement("div");
-                    imgContainer.setAttribute("class", "flex-container flex-column");
-                    for (let i = 0; i < photoCnt; i++) {
-                        const photo = photos.groups[0].items[i];
-                        const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
-                        const origUrl = `${photo.prefix}original${photo.suffix}`;
-                        const a = document.createElement("a");
-                        a.setAttribute("class", "place-img-ele")
-                        const photoEl = document.createElement("img");
-                        photoEl.setAttribute("src", thumbUrl);
-                        photoEl.setAttribute("alt", "Photo of place");
-                        a.appendChild(photoEl);
-                        imgContainer.appendChild(a);
-                        a.addEventListener('click', function() {
-                            modal.updateModal(origUrl)
-                        });
-                    }
+            // Foursquare venue callback
+            // function venueCallback(err, resp) {
+            //     if (!err) {
+            //         const venue = resp.response.venue;
+            //         const status = venue.hours ? venue.hours.status : '';
+            //         const rating = venue.rating;
+            //         const categories = venue.categories;
+            //         let category;
+            //         if (categories) {
+            //             category = categories[0].name;
+            //         }
 
-                    const title = document.getElementById("info-title");
-                    let newTitle = title.innerHTML;
-                    if (category) {
-                        newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
-                    }
-                    if (status !== '') {
-                        newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
-                    }
-                    if (rating) {
-                        newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
-                    }
-                    title.innerHTML = newTitle;
-                    const fsqEl = document.getElementById("fsq");
-                    fsqEl.appendChild(imgContainer);
-                    largeInfowindow.open(map);
-                } else {
-                    console.log('Something went wrong with Foursquare API.');
-                }
-            }
-            function searchCallback(err, resp) {
-                if (!err) {
-                    const venues = resp.response.venues;
-                    if (venues.length > 0) {
-                        const venueID = resp.response.venues[0].id;
-                        fsqAPI.venues.venue(venueID,venueCallback);
-                    } else {
-                        console.log('Foursquare result not available.');
-                    }
-                } else {
-                    console.log('Something went wrong with Foursquare API.');
-                }
-            }
+            //         const photos = venue.photos;
+            //         const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
+            //         const imgContainer = document.createElement("div");
+            //         imgContainer.setAttribute("class", "flex-container flex-column");
+            //         for (let i = 0; i < photoCnt; i++) {
+            //             const photo = photos.groups[0].items[i];
+            //             const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
+            //             const origUrl = `${photo.prefix}original${photo.suffix}`;
+            //             const a = document.createElement("a");
+            //             a.setAttribute("class", "place-img-ele")
+            //             const photoEl = document.createElement("img");
+            //             photoEl.setAttribute("src", thumbUrl);
+            //             photoEl.setAttribute("alt", "Photo of place");
+            //             a.appendChild(photoEl);
+            //             imgContainer.appendChild(a);
+            //             a.addEventListener('click', function() {
+            //                 modal.updateModal(origUrl)
+            //             });
+            //         }
+
+            //         const title = document.getElementById("info-title");
+            //         let newTitle = title.innerHTML;
+            //         if (category) {
+            //             newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            //         }
+            //         if (status !== '') {
+            //             newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+            //         }
+            //         if (rating) {
+            //             newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+            //         }
+            //         title.innerHTML = newTitle;
+            //         const fsqEl = document.getElementById("fsq");
+            //         fsqEl.appendChild(imgContainer);
+            //         largeInfowindow.open(map);
+            //     } else {
+            //         console.log('Something went wrong with Foursquare API.');
+            //     }
+            // }
+
+            // Foursquare search callback
+            // function searchCallback(err, resp) {
+            //     if (!err) {
+            //         const venues = resp.response.venues;
+            //         if (venues.length > 0) {
+            //             const venueID = resp.response.venues[0].id;
+            //             fsqAPI.venues.venue(venueID,venueCallback);
+            //         } else {
+            //             console.log('Foursquare result not available.');
+            //         }
+            //     } else {
+            //         console.log('Something went wrong with Foursquare API.');
+            //     }
+            // }
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
                     const listItem = document.getElementById(selectedMarker.id);
@@ -10040,7 +10047,8 @@ const gmaps = {
                         ll: `${selectedMarker.position.lat()},${selectedMarker.position.lng()}`,
                         query: selectedMarker.title
                     };
-                    fsqAPI.venues.search(searchObj, searchCallback)
+                    // fsqAPI.venues.search(searchObj, searchCallback)
+                    fsq.search(searchObj);
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {
                             const currentItem = document.getElementById(infowindow.marker.id);
@@ -10135,32 +10143,116 @@ const gmaps = {
 }
 
 module.exports = gmaps;
-},{"./modal":45,"google-maps":39,"node-foursquare-venues":40}],45:[function(require,module,exports){
+},{"./fsq":45,"google-maps":39}],47:[function(require,module,exports){
+const gmaps = require('./maps');
+
+const menuIco = document.getElementById('menu-bar');
+const menuClose = document.getElementById('menu-close');
+const menu = document.getElementById('menu');
+const title = document.getElementById('title');
+
+const media = {
+    closedMenu: function() {
+        menu.classList.add('hidden-menu');
+        menuClose.classList.add('fade-out');
+        menuClose.classList.remove('fade-in');
+        menuIco.classList.add('fade-in');
+        menuIco.classList.remove('fade-out');
+        title.classList.add('fade-in');
+        title.classList.add('move-title');
+        title.classList.remove('fade-out');
+        gmaps.resize();
+    },
+    openedMenu: function() {
+        menu.classList.remove('hidden-menu');
+        menuClose.classList.remove('fade-out');
+        menuClose.classList.add('fade-in');
+        menuIco.classList.remove('fade-in');
+        menuIco.classList.add('fade-out');
+        title.classList.remove('fade-in');
+        title.classList.remove('move-title');
+        title.classList.add('fade-out');
+        gmaps.resize();
+    },
+    smallSize: null,
+    init: function() {
+        function WidthChange(mq) {
+            if (mq.matches) {
+                this.closedMenu;
+            } else {
+                this.openedMenu;
+            }
+        }
+
+        // let smallSize;
+        if (matchMedia) {
+            const mq = window.matchMedia("(max-width: 1024px)");
+            this.smallSize = window.matchMedia('(max-width: 700px)');
+            mq.addListener(WidthChange);
+            this.smallSize.addListener(WidthChange);
+            WidthChange(mq);
+            WidthChange(this.smallSize);
+        }
+    }
+}
+
+module.exports = media;
+},{"./maps":46}],48:[function(require,module,exports){
+const gmaps = require('./maps');
+
+const menuIco = document.getElementById('menu-bar');
+const menuClose = document.getElementById('menu-close');
+const menu = document.getElementById('menu');
+const title = document.getElementById('title');
+
+const moveMenu = function() {
+    gmaps.resize();
+    menu.classList.toggle('hidden-menu');
+    if (menuClose.classList.contains('fade-out')) {
+        setTimeout(function() {
+            menuClose.classList.toggle('fade-out');
+            menuClose.classList.toggle('fade-in');
+        }, 400);
+    } else {
+        menuClose.classList.toggle('fade-out');
+        menuClose.classList.toggle('fade-in');
+    }
+    if (menuIco.classList.contains('fade-out')) {
+        setTimeout(function() {
+            menuIco.classList.toggle('fade-out');
+            menuIco.classList.toggle('fade-in');
+        }, 400);
+        setTimeout(function() {
+            title.classList.toggle('fade-out');
+            title.classList.toggle('fade-in');
+            title.classList.toggle('move-title');
+        }, 600);
+    } else {
+        menuIco.classList.toggle('fade-out');
+        menuIco.classList.toggle('fade-in');
+        title.classList.toggle('fade-out');
+        title.classList.toggle('fade-in');
+        title.classList.toggle('move-title');
+    }
+}
+
+module.exports = moveMenu;
+},{"./maps":46}],49:[function(require,module,exports){
 const modal = {
     init: function() {
-        const modal = document.getElementById('myModal');
+        const modalEl = document.getElementById('myModal');
         const closeModalBtn = document.getElementsByClassName('close-modal')[0];
         closeModalBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
+            modalEl.style.display = 'none';
         })
     },
     updateModal: function(src) {
-        const modal = document.getElementById('myModal');
+        const modalEl = document.getElementById('myModal');
         const modalImg = document.getElementById('imgModal');
-        modal.style.display = 'flex';
+        modalEl.style.display = 'flex';
         modalImg.src = src;
     }
 }
 
 module.exports = modal;
-},{}],46:[function(require,module,exports){
-const Place = function (data) {
-    this.id = data.id;
-    this.title = data.title;
-    this.position = data.position;
-    this.place_id = data.place_id;
-    this.fsq_id = data.fsq_id;
-};
-
-module.exports = Place;
-},{}]},{},[42]);
+},{}]},{},[43]);
