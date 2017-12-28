@@ -114,72 +114,7 @@ const gmaps = {
                 }
             }
 
-            // Foursquare venue callback
-            // function venueCallback(err, resp) {
-            //     if (!err) {
-            //         const venue = resp.response.venue;
-            //         const status = venue.hours ? venue.hours.status : '';
-            //         const rating = venue.rating;
-            //         const categories = venue.categories;
-            //         let category;
-            //         if (categories) {
-            //             category = categories[0].name;
-            //         }
-
-            //         const photos = venue.photos;
-            //         const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-            //         const imgContainer = document.createElement("div");
-            //         imgContainer.setAttribute("class", "flex-container flex-column");
-            //         for (let i = 0; i < photoCnt; i++) {
-            //             const photo = photos.groups[0].items[i];
-            //             const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
-            //             const origUrl = `${photo.prefix}original${photo.suffix}`;
-            //             const a = document.createElement("a");
-            //             a.setAttribute("class", "place-img-ele")
-            //             const photoEl = document.createElement("img");
-            //             photoEl.setAttribute("src", thumbUrl);
-            //             photoEl.setAttribute("alt", "Photo of place");
-            //             a.appendChild(photoEl);
-            //             imgContainer.appendChild(a);
-            //             a.addEventListener('click', function() {
-            //                 modal.updateModal(origUrl)
-            //             });
-            //         }
-
-            //         const title = document.getElementById("info-title");
-            //         let newTitle = title.innerHTML;
-            //         if (category) {
-            //             newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
-            //         }
-            //         if (status !== '') {
-            //             newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
-            //         }
-            //         if (rating) {
-            //             newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
-            //         }
-            //         title.innerHTML = newTitle;
-            //         const fsqEl = document.getElementById("fsq");
-            //         fsqEl.appendChild(imgContainer);
-            //         largeInfowindow.open(map);
-            //     } else {
-            //         console.log('Something went wrong with Foursquare API.');
-            //     }
-            // }
-
-            // Foursquare search callback
-            // function searchCallback(err, resp) {
-            //     if (!err) {
-            //         const venues = resp.response.venues;
-            //         if (venues.length > 0) {
-            //             const venueID = resp.response.venues[0].id;
-            //             fsqAPI.venues.venue(venueID,venueCallback);
-            //         } else {
-            //             console.log('Foursquare result not available.');
-            //         }
-            //     } else {
-            //         console.log('Something went wrong with Foursquare API.');
-            //     }
-            // }
+            // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
                     const listItem = document.getElementById(selectedMarker.id);
@@ -189,12 +124,29 @@ const gmaps = {
                     }
                     infowindow.setContent(selectedMarker.title);
                     infowindow.marker = selectedMarker;
+
+                    // Launch foursquare search
                     const searchObj = {
                         ll: `${selectedMarker.position.lat()},${selectedMarker.position.lng()}`,
                         query: selectedMarker.title
                     };
-                    // fsqAPI.venues.search(searchObj, searchCallback)
                     fsq.search(searchObj);
+
+                    // Setup streetview
+                    const SVService = new google.maps.StreetViewService();
+                    const rad = 50;
+                    SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
+
+                    // open the infowindow
+                    infowindow.open(map, selectedMarker);
+
+                    // make the item active in the list
+                    listItem.classList.toggle("active");
+                    if (prevListItem) {
+                        prevListItem.classList.toggle("active");
+                    }
+
+                    // event listener for closing the infowindow
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {
                             const currentItem = document.getElementById(infowindow.marker.id);
@@ -202,23 +154,18 @@ const gmaps = {
                         }
                         infowindow.marker = null;
                     });
-
-                    const SVService = new google.maps.StreetViewService();
-                    const rad = 50;
-
-                    // SVService.getPanoramaByLocation(selectedMarker.position, rad, processStreetView)
-                    SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
-
-                    infowindow.open(map, selectedMarker);
-                    listItem.classList.toggle("active");
-                    if (prevListItem) {
-                        prevListItem.classList.toggle("active");
-                    }
                 }
             }
 
-            const defaultIcon = makeMarkerIcon('0091ff');
-            const highlightedIcon = makeMarkerIcon('FFFF24');
+            function markerBounce(thisMarker) {
+                thisMarker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(() => {
+                    thisMarker.setAnimation(null);
+                }, 1000);
+            }
+
+            const defaultIcon = makeMarkerIcon('d22626');
+            const highlightedIcon = makeMarkerIcon('ff6464');
             const marker = new google.maps.Marker({
                 position: place.position,
                 map: map,
@@ -233,6 +180,7 @@ const gmaps = {
             // add listeners
             marker.addListener('click', function() {
                 populateInfoWindow(this, largeInfowindow);
+                markerBounce(this);
             });
             marker.addListener('mouseover', function() {
                 this.setIcon(highlightedIcon);
