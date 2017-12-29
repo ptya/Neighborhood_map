@@ -233,7 +233,7 @@ h1 {
 /* MEDIA QUERIES */
 /* Small view */
 
-@media only screen and (min-width: 701px) and (max-width: 1024px) {
+@media only screen and (min-width: 701px) and (max-width: 1310px) {
   .menu {
     flex: 2;
   }
@@ -276,7 +276,7 @@ h1 {
 
 /* Mobile view */
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 530px) {
   .menu {
     background: #f8f8f8;
     height: 100%;
