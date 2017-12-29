@@ -1,41 +1,51 @@
-const GoogleMapsLoader = require('google-maps'); // eslint-disable-line import/no-unresolved
-// const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
+const GoogleMapsApiLoader = require('google-maps-api-loader'); // eslint-disable-line import/no-unresolved
 const fsq = require('./fsq');
-// const modal = require('./modal');
+
+const mapEl = document.getElementById('map-canvas');
+const mapsPromise = GoogleMapsApiLoader({
+    libraries: ['geometry', 'places'],
+    apiKey: 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU'
+}).then(
+    (google) => google,
+    (err) => {
+        mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+        console.error(err);
+    }
+);
 
 const gmaps = {
     initMaps: function() {
-        GoogleMapsLoader.KEY = 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU';
-        GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
-
-        GoogleMapsLoader.load(function(google) {
-            const mapEl = document.getElementById('map-canvas');
-            const bp = new google.maps.LatLng(47.4979, 19.0402);
-            const options = {
-                center: bp,
-                zoom: 15,
-                mapTypeControl: false
-            };
-            window.map = new google.maps.Map(mapEl, options);
-            window.markers = [];
-            window.largeInfowindow = new google.maps.InfoWindow();
-            // set up event listener to auto-zoom if bounds change
-            google.maps.event.addListener(window.map, 'bounds_changed', function() {
-                let zoom = window.map.getZoom();
-                // set minimum zoom level
-                if (zoom > 16) {
-                    window.map.setZoom(16);
-                } else {
-                    window.map.setZoom(zoom);
-                }
-              });
-        });
+        mapsPromise.then((google) => {
+                const bp = new google.maps.LatLng(47.4979, 19.0402);
+                const options = {
+                    center: bp,
+                    zoom: 15,
+                    mapTypeControl: false
+                };
+                window.map = new google.maps.Map(mapEl, options);
+                window.markers = [];
+                window.largeInfowindow = new google.maps.InfoWindow();
+                // set up event listener to auto-zoom if bounds change
+                google.maps.event.addListener(window.map, 'bounds_changed', function() {
+                    let zoom = window.map.getZoom();
+                    // set minimum zoom level
+                    if (zoom > 16) {
+                        window.map.setZoom(16);
+                    } else {
+                        window.map.setZoom(zoom);
+                    }
+                });
+            }, (err) => {
+                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+                console.error(err);
+            }
+        );
     },
     resize: function() {
         const map = window.map;
         if (map) {
             const center = map.getCenter();
-            GoogleMapsLoader.load(function(google) {
+            mapsPromise.then((google) => {
                 const repeatResize = setInterval(function(){
                     google.maps.event.trigger(map, "resize");
                     map.panTo(center);
@@ -43,11 +53,14 @@ const gmaps = {
                 setTimeout(function(){
                     clearTimeout(repeatResize);
                 }, 300);
+            }, (err) => {
+                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+                console.error(err);
             });
         }
     },
     createMarker: function(place) {
-        GoogleMapsLoader.load(function(google) {
+        mapsPromise.then((google) => {
             const map = window.map;
             const largeInfowindow = window.largeInfowindow;
             // helper functions
@@ -59,7 +72,8 @@ const gmaps = {
                     new google.maps.Size(21, 34),
                     new google.maps.Point(0, 0),
                     new google.maps.Point(10, 34),
-                    new google.maps.Size(21,34));
+                    new google.maps.Size(21,34)
+                );
                 return markerImage;
             }
             // Adding streetview to infowindow
@@ -67,11 +81,11 @@ const gmaps = {
                 if (status === google.maps.StreetViewStatus.OK) {
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
-                            <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
                         </div>
                         <div class="flex-container flex-center">
-                            <div id="pano"></div>
-                            <div id="fsq"></div>
+                        <div id="pano"></div>
+                        <div id="fsq"></div>
                         </div>`
                     );
                     const loc = data.location.latLng;
@@ -107,7 +121,7 @@ const gmaps = {
                 } else {
                     this.largeInfowindow.setContent(
                         `<div id="info-title">
-                            <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
                         </div>
                         <div id="fsq"></div>`
                     );
@@ -189,10 +203,14 @@ const gmaps = {
                 this.setIcon(defaultIcon);
             });
 
+        },
+        (err) => {
+            mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+            console.error(err);
         });
     },
     centerMap: function() {
-        GoogleMapsLoader.load(function(google) {
+        mapsPromise.then((google) => {
             const map = window.map;
             const markers = window.markers;
             const bounds = new google.maps.LatLngBounds();
@@ -208,6 +226,10 @@ const gmaps = {
                 map.panTo(bounds.getCenter());
                 map.fitBounds(bounds);
             }
+        },
+        (err) => {
+            mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+            console.error(err);
         });
     },
     filterMarkers: function(filteredMarkers) {
@@ -225,15 +247,20 @@ const gmaps = {
         }
     },
     selectMarker: function(place) {
-        GoogleMapsLoader.load(function(google) {
+        mapsPromise.then((google) => {
             const markers = window.markers;
             markers.forEach((marker) => {
                 if (place.title === marker.title) {
                     google.maps.event.trigger(marker, 'click');
                 }
             });
+        },
+        (err) => {
+            mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+            console.error(err);
         });
     }
 }
+
 
 module.exports = gmaps;
