@@ -64,6 +64,10 @@ const ViewModel = function() {
         }
     };
 
+    this.updateModal = (src) => {
+
+    }
+
     // Add listeners
     input.addEventListener('keyup', (e) => {
         if (e.keyCode === 13) this.enterPlace()
@@ -72,4 +76,9 @@ const ViewModel = function() {
     menuClose.addEventListener('click', moveMenu);
 };
 
+const InfowindowViewModel = function() {
+    this.proba = ko.observable('No ez működik');
+}
+
 ko.applyBindings(new ViewModel());
+console.log(document.getElementById('map-canvas'));

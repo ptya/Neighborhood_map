@@ -42,6 +42,7 @@ const gmaps = {
                 console.error(err);
             }
         );
+        console.log(this);
     },
     resize: function() {
         const map = window.map;
@@ -81,15 +82,46 @@ const gmaps = {
             // Adding streetview to infowindow
             function processStreetView(data, status) {
                 if (status === google.maps.StreetViewStatus.OK) {
-                    this.largeInfowindow.setContent(
-                        `<div id="info-title">
-                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
-                        </div>
-                        <div class="flex-container flex-center">
-                        <div id="pano"></div>
-                        <div id="fsq"></div>
-                        </div>`
-                    );
+                    // let content = '<div id="info-title">';
+                    // content += `<span class="info-title" data-bind="text: title"></span>`;
+                    // // content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
+                    // content += '</div>';
+                    // content += '<div class="flex-container flex-center">';
+                    // content += '<div id="pano"></div>';
+                    // content += '<div id="fsq"></div>';
+                    // content += '</div>';
+                    const infowindowEl = document.createElement('div');
+                    const titleEl = document.createElement('div');
+                    titleEl.setAttribute('id', 'info-title');
+                    const titleSpan = document.createElement('span');
+                    titleSpan.setAttribute('class', 'info-title');
+                    titleSpan.textContent = this.largeInfowindow.anchor.title;
+                    titleEl.appendChild(titleSpan);
+
+                    const flexContainer = document.createElement('div');
+                    flexContainer.setAttribute('class', 'flex-container flex-center');
+                    const panoEl = document.createElement('div');
+                    panoEl.setAttribute('id', 'pano');
+                    const fsqEl = document.createElement('div');
+                    fsqEl.setAttribute('id', 'fsq');
+                    flexContainer.appendChild(panoEl);
+                    flexContainer.appendChild(fsqEl);
+
+                    infowindowEl.appendChild(titleEl);
+                    infowindowEl.appendChild(flexContainer);
+
+
+                    this.largeInfowindow.setContent(infowindowEl);
+                    // this.largeInfowindow.setContent(content);
+                    // this.largeInfowindow.setContent(
+                    //     `<div id="info-title">
+                    //     <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                    //     </div>
+                    //     <div class="flex-container flex-center">
+                    //     <div id="pano"></div>
+                    //     <div id="fsq"></div>
+                    //     </div>`
+                    // );
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
                         loc, this.largeInfowindow.anchor.position
@@ -121,12 +153,17 @@ const gmaps = {
 
 
                 } else {
-                    this.largeInfowindow.setContent(
-                        `<div id="info-title">
-                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
-                        </div>
-                        <div id="fsq"></div>`
-                    );
+                    let content = '<div id="info-title">';
+                    content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
+                    content += '</div>';
+                    content += '<div id="fsq"></div>';
+                    this.largeInfowindow.setContent(content);
+                    // this.largeInfowindow.setContent(
+                    //     `<div id="info-title">
+                    //     <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                    //     </div>
+                    //     <div id="fsq"></div>`
+                    // );
                 }
             }
 
@@ -260,6 +297,10 @@ const gmaps = {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
             console.error(err);
         });
+    },
+    addFsqData: function(data) {
+        console.log(data);
+        console.log('eh?');
     }
 }
 

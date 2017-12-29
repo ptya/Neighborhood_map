@@ -10838,6 +10838,10 @@ const ViewModel = function() {
         }
     };
 
+    this.updateModal = (src) => {
+
+    }
+
     // Add listeners
     input.addEventListener('keyup', (e) => {
         if (e.keyCode === 13) this.enterPlace()
@@ -10846,7 +10850,13 @@ const ViewModel = function() {
     menuClose.addEventListener('click', moveMenu);
 };
 
+const InfowindowViewModel = function() {
+    this.proba = ko.observable('No ez működik');
+}
+
 ko.applyBindings(new ViewModel());
+console.log(document.getElementById('map-canvas'));
+
 },{"../lib/knockout/knockout-3.4.2":38,"./data/places":45,"./models/Place":47,"./modules/maps":49,"./modules/media":50,"./modules/menu":51,"./modules/modal":52,"underscore":44}],47:[function(require,module,exports){
 const Place = function (data) {
     this.id = data.id;
@@ -10876,46 +10886,71 @@ function venueCallback(err, resp) {
         // Grab max 3 pictures of the place
         const photos = venue.photos;
         const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-        const imgContainer = document.createElement("div");
-        imgContainer.setAttribute("class", "flex-container flex-column");
+        // const imgContainer = document.createElement("div");
+        // imgContainer.setAttribute("class", "flex-container flex-column");
+        let imgHTML = '<div class="flex-container flex-column">';
+        if (photoCnt === 0) {
+            imgHTML += 'No photos found for this place.';
+        }
         for (let i = 0; i < photoCnt; i++) {
             const photo = photos.groups[0].items[i];
             const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
             const origUrl = `${photo.prefix}original${photo.suffix}`;
-            const a = document.createElement("a");
-            a.setAttribute("class", "place-img-ele")
-            const photoEl = document.createElement("img");
-            photoEl.setAttribute("src", thumbUrl);
-            photoEl.setAttribute("alt", "Photo of place");
-            a.appendChild(photoEl);
-            imgContainer.appendChild(a);
-            a.addEventListener('click', function() {
-                modal.updateModal(origUrl)
-            });
+            imgHTML += '<a class="place-img-ele">';
+            imgHTML += `<img src="${thumbUrl}" alt="Photo of place #${i+1}">`;
+            imgHTML += '</a>';
+            // const a = document.createElement("a");
+            // a.setAttribute("class", "place-img-ele")
+            // const photoEl = document.createElement("img");
+            // photoEl.setAttribute("src", thumbUrl);
+            // photoEl.setAttribute("alt", "Photo of place");
+            // a.appendChild(photoEl);
+            // imgContainer.appendChild(a);
+
+            /*
+            // MODAL UPDATE REQUIRED -- NEW VIEWMODEL //
+            */
+            // a.addEventListener('click', function() {
+            //     modal.updateModal(origUrl)
+            // });
         }
+        imgHTML += '</div>'
 
         // Extend the title with available info
-        const title = document.getElementById("info-title");
-        let newTitle = title.innerHTML;
+        // const title = document.getElementById("info-title");
+        // let newTitle = title.innerHTML;
+        let titleHTML = '';
         if (category) {
-            newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            // newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            titleHTML += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
         }
         if (status !== '') {
-            newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+            // newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+            titleHTML += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
         }
         if (rating) {
-            newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+            // newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+            titleHTML += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
         }
-        title.innerHTML = newTitle;
+        // title.innerHTML = newTitle;
 
-        const fsqEl = document.getElementById("fsq");
-        fsqEl.appendChild(imgContainer);
+        // const fsqEl = document.getElementById("fsq");
+        // fsqEl.appendChild(imgContainer);
 
+        /* TODO */
         // resize the map if infowindow does not fit
-        window.largeInfowindow.open(window.map);
+        // window.largeInfowindow.open(window.map);
+        const infowindowContent = window.largeInfowindow.getContent();
+        console.log(window.largeInfowindow.getContent());
+
+
+
+
+
     } else {
         console.log('Something went wrong with Foursquare API.');
     }
+
 }
 
 function searchCallback(err, resp) {
@@ -10923,7 +10958,8 @@ function searchCallback(err, resp) {
         const venues = resp.response.venues;
         if (venues.length > 0) {
             const venueID = resp.response.venues[0].id;
-            fsqAPI.venues.venue(venueID, venueCallback);
+            const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
+            console.log(fsqResp);
         } else {
             console.log('Foursquare result not available.');
         }
@@ -10984,6 +11020,7 @@ const gmaps = {
                 console.error(err);
             }
         );
+        console.log(this);
     },
     resize: function() {
         const map = window.map;
@@ -11023,15 +11060,46 @@ const gmaps = {
             // Adding streetview to infowindow
             function processStreetView(data, status) {
                 if (status === google.maps.StreetViewStatus.OK) {
-                    this.largeInfowindow.setContent(
-                        `<div id="info-title">
-                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
-                        </div>
-                        <div class="flex-container flex-center">
-                        <div id="pano"></div>
-                        <div id="fsq"></div>
-                        </div>`
-                    );
+                    // let content = '<div id="info-title">';
+                    // content += `<span class="info-title" data-bind="text: title"></span>`;
+                    // // content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
+                    // content += '</div>';
+                    // content += '<div class="flex-container flex-center">';
+                    // content += '<div id="pano"></div>';
+                    // content += '<div id="fsq"></div>';
+                    // content += '</div>';
+                    const infowindowEl = document.createElement('div');
+                    const titleEl = document.createElement('div');
+                    titleEl.setAttribute('id', 'info-title');
+                    const titleSpan = document.createElement('span');
+                    titleSpan.setAttribute('class', 'info-title');
+                    titleSpan.textContent = this.largeInfowindow.anchor.title;
+                    titleEl.appendChild(titleSpan);
+
+                    const flexContainer = document.createElement('div');
+                    flexContainer.setAttribute('class', 'flex-container flex-center');
+                    const panoEl = document.createElement('div');
+                    panoEl.setAttribute('id', 'pano');
+                    const fsqEl = document.createElement('div');
+                    fsqEl.setAttribute('id', 'fsq');
+                    flexContainer.appendChild(panoEl);
+                    flexContainer.appendChild(fsqEl);
+
+                    infowindowEl.appendChild(titleEl);
+                    infowindowEl.appendChild(flexContainer);
+
+
+                    this.largeInfowindow.setContent(infowindowEl);
+                    // this.largeInfowindow.setContent(content);
+                    // this.largeInfowindow.setContent(
+                    //     `<div id="info-title">
+                    //     <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                    //     </div>
+                    //     <div class="flex-container flex-center">
+                    //     <div id="pano"></div>
+                    //     <div id="fsq"></div>
+                    //     </div>`
+                    // );
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
                         loc, this.largeInfowindow.anchor.position
@@ -11063,12 +11131,17 @@ const gmaps = {
 
 
                 } else {
-                    this.largeInfowindow.setContent(
-                        `<div id="info-title">
-                        <span class="info-title">${this.largeInfowindow.anchor.title}</span>
-                        </div>
-                        <div id="fsq"></div>`
-                    );
+                    let content = '<div id="info-title">';
+                    content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
+                    content += '</div>';
+                    content += '<div id="fsq"></div>';
+                    this.largeInfowindow.setContent(content);
+                    // this.largeInfowindow.setContent(
+                    //     `<div id="info-title">
+                    //     <span class="info-title">${this.largeInfowindow.anchor.title}</span>
+                    //     </div>
+                    //     <div id="fsq"></div>`
+                    // );
                 }
             }
 
@@ -11202,6 +11275,10 @@ const gmaps = {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
             console.error(err);
         });
+    },
+    addFsqData: function(data) {
+        console.log(data);
+        console.log('eh?');
     }
 }
 
