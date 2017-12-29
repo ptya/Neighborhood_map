@@ -11160,7 +11160,7 @@ const gmaps = {
             const bounds = new google.maps.LatLngBounds();
             let validCenter = false;
             markers.forEach((marker) => {
-                if (marker.map) {
+                if (marker.getVisible()) {
                     bounds.extend(marker.getPosition());
                     validCenter = true;
                 }
@@ -11177,15 +11177,14 @@ const gmaps = {
         });
     },
     filterMarkers: function(filteredMarkers) {
-        const map = window.map;
         const markers = window.markers;
         const filteredTitles = filteredMarkers.map((place) => place.title);
         if (markers) {
             markers.forEach((marker) => {
                 if (filteredTitles.includes(marker.title)) {
-                    if (marker.map === null) marker.setMap(map);
+                    if (!marker.getVisible()) marker.setVisible(true);
                 } else {
-                    marker.setMap(null);
+                    marker.setVisible(false);
                 };
             });
         }
