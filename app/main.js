@@ -10977,6 +10977,8 @@ const gmaps = {
                         window.map.setZoom(zoom);
                     }
                 });
+                // set up event listener to center the map if window size changes
+                google.maps.event.addDomListener(window, 'resize', this.centerMap);
             }, (err) => {
                 mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
                 console.error(err);
