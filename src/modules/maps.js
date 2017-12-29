@@ -175,7 +175,7 @@ const gmaps = {
                 thisMarker.setAnimation(google.maps.Animation.BOUNCE);
                 setTimeout(() => {
                     thisMarker.setAnimation(null);
-                }, 1000);
+                }, 700);
             }
 
             const defaultIcon = makeMarkerIcon('d22626');
