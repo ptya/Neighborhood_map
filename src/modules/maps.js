@@ -13,7 +13,37 @@ const mapsPromise = GoogleMapsApiLoader({
     }
 );
 
+
+
+
 const gmaps = {
+    baseInfowindow: function() {
+        /* Creating the infowindow elements */
+        // Title elements
+        const infowindowEl = document.createElement('div');
+        const titleEl = document.createElement('div');
+        titleEl.setAttribute('id', 'info-title');
+        const titleSpan = document.createElement('span');
+        titleSpan.setAttribute('class', 'info-title');
+        // titleSpan.textContent = this.largeInfowindow.anchor.title;
+        titleEl.appendChild(titleSpan);
+
+        // Streetview and Foursquare image elements
+        const flexContainer = document.createElement('div');
+        flexContainer.setAttribute('class', 'flex-container flex-center');
+        const panoEl = document.createElement('div');
+        panoEl.setAttribute('id', 'pano');
+        const fsqEl = document.createElement('div');
+        fsqEl.setAttribute('id', 'fsq');
+        flexContainer.appendChild(panoEl);
+        flexContainer.appendChild(fsqEl);
+
+        // Assemble the header part of infowindow
+        infowindowEl.appendChild(titleEl);
+        infowindowEl.appendChild(flexContainer);
+
+        return infowindowEl;
+    },
     initMaps: function() {
         mapsPromise.then((google) => {
                 const bp = new google.maps.LatLng(47.4979, 19.0402);
@@ -24,7 +54,12 @@ const gmaps = {
                 };
                 window.map = new google.maps.Map(mapEl, options);
                 window.markers = [];
-                window.largeInfowindow = new google.maps.InfoWindow();
+
+                const content = this.baseInfowindow();
+
+                window.largeInfowindow = new google.maps.InfoWindow({content: this.baseInfowindow()});
+                console.log(0);
+                console.log(window.largeInfowindow.getContent());
                 // set up event listener to auto-zoom if bounds change
                 google.maps.event.addListener(window.map, 'bounds_changed', function() {
                     let zoom = window.map.getZoom();
@@ -42,7 +77,6 @@ const gmaps = {
                 console.error(err);
             }
         );
-        console.log(this);
     },
     resize: function() {
         const map = window.map;
@@ -66,6 +100,12 @@ const gmaps = {
         mapsPromise.then((google) => {
             const map = window.map;
             const largeInfowindow = window.largeInfowindow;
+            const content = this.baseInfowindow();
+            console.log('content');
+            console.log(content);
+
+
+
             // helper functions
             function makeMarkerIcon(color) {
                 const markerImage = new google.maps.MarkerImage(
@@ -81,6 +121,11 @@ const gmaps = {
             }
             // Adding streetview to infowindow
             function processStreetView(data, status) {
+                // const content = infowindowEl;
+                // content.appendChild(flexContainer);
+                // this.largeInfowindow.setContent(content);
+                console.log(4);
+                console.log(this.largeInfowindow.getContent());
                 if (status === google.maps.StreetViewStatus.OK) {
                     // let content = '<div id="info-title">';
                     // content += `<span class="info-title" data-bind="text: title"></span>`;
@@ -90,28 +135,6 @@ const gmaps = {
                     // content += '<div id="pano"></div>';
                     // content += '<div id="fsq"></div>';
                     // content += '</div>';
-                    const infowindowEl = document.createElement('div');
-                    const titleEl = document.createElement('div');
-                    titleEl.setAttribute('id', 'info-title');
-                    const titleSpan = document.createElement('span');
-                    titleSpan.setAttribute('class', 'info-title');
-                    titleSpan.textContent = this.largeInfowindow.anchor.title;
-                    titleEl.appendChild(titleSpan);
-
-                    const flexContainer = document.createElement('div');
-                    flexContainer.setAttribute('class', 'flex-container flex-center');
-                    const panoEl = document.createElement('div');
-                    panoEl.setAttribute('id', 'pano');
-                    const fsqEl = document.createElement('div');
-                    fsqEl.setAttribute('id', 'fsq');
-                    flexContainer.appendChild(panoEl);
-                    flexContainer.appendChild(fsqEl);
-
-                    infowindowEl.appendChild(titleEl);
-                    infowindowEl.appendChild(flexContainer);
-
-
-                    this.largeInfowindow.setContent(infowindowEl);
                     // this.largeInfowindow.setContent(content);
                     // this.largeInfowindow.setContent(
                     //     `<div id="info-title">
@@ -153,12 +176,15 @@ const gmaps = {
 
 
                 } else {
-                    let content = '<div id="info-title">';
-                    content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
-                    content += '</div>';
-                    content += '<div id="fsq"></div>';
-                    this.largeInfowindow.setContent(content);
-                    // this.largeInfowindow.setContent(
+                    // let content = '<div id="info-title">';
+                    // content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
+                    // content += '</div>';
+                    // content += '<div id="fsq"></div>';
+                    // this.largeInfowindow.setContent(content);
+                    // flexContainer.appendChild(fsqEl);
+                    // infowindowEl.appendChild(flexContainer);
+                    // this.largeInfowindow.setContent(infowindowEl);
+                    // // this.largeInfowindow.setContent(
                     //     `<div id="info-title">
                     //     <span class="info-title">${this.largeInfowindow.anchor.title}</span>
                     //     </div>
@@ -169,13 +195,21 @@ const gmaps = {
 
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
+                console.log(this);
                 if (infowindow.marker !== selectedMarker) {
+                    console.log(1);
+                    console.log(infowindow.getContent());
+                    infowindow.setContent(null);
+                    console.log(2);
+                    console.log(infowindow.getContent());
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
                     if (infowindow.marker) {
                         prevListItem = document.getElementById(infowindow.marker.id);
                     }
-                    infowindow.setContent(selectedMarker.title);
+                    infowindow.setContent(content);
+                    console.log(3);
+                    console.log(infowindow.getContent());
                     infowindow.marker = selectedMarker;
 
                     // Launch foursquare search

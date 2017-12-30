@@ -71,7 +71,7 @@ function venueCallback(err, resp) {
         // resize the map if infowindow does not fit
         // window.largeInfowindow.open(window.map);
         const infowindowContent = window.largeInfowindow.getContent();
-        console.log(window.largeInfowindow.getContent());
+        // console.log(window.largeInfowindow.getContent());
 
 
 
@@ -89,7 +89,6 @@ function searchCallback(err, resp) {
         if (venues.length > 0) {
             const venueID = resp.response.venues[0].id;
             const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
-            console.log(fsqResp);
         } else {
             console.log('Foursquare result not available.');
         }
