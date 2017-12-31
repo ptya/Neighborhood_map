@@ -3,6 +3,12 @@ const modal = require('./modal');
 
 function venueCallback(err, resp) {
     if (!err) {
+        // const infowindowEl = window.largeInfowindow.getContent();
+        // console.log(infowindowEl);
+        // const headerEl = infowindowEl.firstChild;
+        // const fsqEl = infowindowEl.lastChild.lastChild;
+        // console.log(headerEl);
+        // console.log(fsqEl);
         // Grab info of the place
         const venue = resp.response.venue;
         const status = venue.hours ? venue.hours.status : '';
@@ -52,6 +58,10 @@ function venueCallback(err, resp) {
         let titleHTML = '';
         if (category) {
             // newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            const infoSpan = document.createElement('span');
+            infoSpan.setAttribute('class', 'info');
+            infoSpan.innerHTML = `<strong>Type:</strong> ${category}`;
+            // headerEl.appendChild(infoSpan);
             titleHTML += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
         }
         if (status !== '') {
@@ -70,9 +80,9 @@ function venueCallback(err, resp) {
         /* TODO */
         // resize the map if infowindow does not fit
         // window.largeInfowindow.open(window.map);
-        const infowindowContent = window.largeInfowindow.getContent();
+        // const infowindowContent = window.largeInfowindow.getContent();
         // console.log(window.largeInfowindow.getContent());
-
+        // window.largeInfowindow.setContent(infowindowEl);
 
 
 

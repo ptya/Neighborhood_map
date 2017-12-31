@@ -10873,6 +10873,12 @@ const modal = require('./modal');
 
 function venueCallback(err, resp) {
     if (!err) {
+        // const infowindowEl = window.largeInfowindow.getContent();
+        // console.log(infowindowEl);
+        // const headerEl = infowindowEl.firstChild;
+        // const fsqEl = infowindowEl.lastChild.lastChild;
+        // console.log(headerEl);
+        // console.log(fsqEl);
         // Grab info of the place
         const venue = resp.response.venue;
         const status = venue.hours ? venue.hours.status : '';
@@ -10922,6 +10928,10 @@ function venueCallback(err, resp) {
         let titleHTML = '';
         if (category) {
             // newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            const infoSpan = document.createElement('span');
+            infoSpan.setAttribute('class', 'info');
+            infoSpan.innerHTML = `<strong>Type:</strong> ${category}`;
+            // headerEl.appendChild(infoSpan);
             titleHTML += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
         }
         if (status !== '') {
@@ -10940,9 +10950,9 @@ function venueCallback(err, resp) {
         /* TODO */
         // resize the map if infowindow does not fit
         // window.largeInfowindow.open(window.map);
-        const infowindowContent = window.largeInfowindow.getContent();
+        // const infowindowContent = window.largeInfowindow.getContent();
         // console.log(window.largeInfowindow.getContent());
-
+        // window.largeInfowindow.setContent(infowindowEl);
 
 
 
@@ -11008,12 +11018,12 @@ const gmaps = {
         // Streetview and Foursquare image elements
         const flexContainer = document.createElement('div');
         flexContainer.setAttribute('class', 'flex-container flex-center');
-        const panoEl = document.createElement('div');
-        panoEl.setAttribute('id', 'pano');
-        const fsqEl = document.createElement('div');
-        fsqEl.setAttribute('id', 'fsq');
-        flexContainer.appendChild(panoEl);
-        flexContainer.appendChild(fsqEl);
+        // const panoEl = document.createElement('div');
+        // panoEl.setAttribute('id', 'pano');
+        // const fsqEl = document.createElement('div');
+        // fsqEl.setAttribute('id', 'fsq');
+        // flexContainer.appendChild(panoEl);
+        // flexContainer.appendChild(fsqEl);
 
         // Assemble the header part of infowindow
         infowindowEl.appendChild(titleEl);
@@ -11078,8 +11088,6 @@ const gmaps = {
             const map = window.map;
             const largeInfowindow = window.largeInfowindow;
             const content = this.baseInfowindow();
-            console.log('content');
-            console.log(content);
 
 
 
@@ -11101,9 +11109,32 @@ const gmaps = {
                 // const content = infowindowEl;
                 // content.appendChild(flexContainer);
                 // this.largeInfowindow.setContent(content);
-                console.log(4);
-                console.log(this.largeInfowindow.getContent());
                 if (status === google.maps.StreetViewStatus.OK) {
+                    /* Creating the infowindow elements */
+                    // Title elements
+                    const infowindowEl = document.createElement('div');
+                    const titleEl = document.createElement('div');
+                    titleEl.setAttribute('id', 'info-title');
+                    const titleSpan = document.createElement('span');
+                    titleSpan.setAttribute('class', 'info-title');
+                    titleSpan.textContent = this.largeInfowindow.anchor.title;
+                    titleEl.appendChild(titleSpan);
+
+                    // Streetview and Foursquare image elements
+                    const flexContainer = document.createElement('div');
+                    flexContainer.setAttribute('class', 'flex-container flex-center');
+                    const panoEl = document.createElement('div');
+                    panoEl.setAttribute('id', 'pano');
+                    const fsqEl = document.createElement('div');
+                    fsqEl.setAttribute('id', 'fsq');
+                    flexContainer.appendChild(panoEl);
+                    flexContainer.appendChild(fsqEl);
+
+                    // Assemble the header part of infowindow
+                    infowindowEl.appendChild(titleEl);
+                    infowindowEl.appendChild(flexContainer);
+
+                    this.largeInfowindow.setContent(infowindowEl);
                     // let content = '<div id="info-title">';
                     // content += `<span class="info-title" data-bind="text: title"></span>`;
                     // // content += `<span class="info-title">${this.largeInfowindow.anchor.title}</span>`;
@@ -11122,6 +11153,25 @@ const gmaps = {
                     //     <div id="fsq"></div>
                     //     </div>`
                     // );
+                    // const titleEl = content.firstChild.firstChild;
+                    // titleEl.textContent = this.largeInfowindow.anchor.title;
+                    // console.log(content.firstChild.firstChild);
+                    // console.log(content.firstElementChild);
+                    // let container = content.lastChild;
+                    // // Remove the container if the location was already opened once
+                    // if (container.childNodes.length > 0) {
+                    //     container.remove();
+                    //     const flexContainer = document.createElement('div');
+                    //     flexContainer.setAttribute('class', 'flex-container flex-center');
+                    //     content.appendChild(flexContainer);
+                    //     container = content.lastChild;
+                    // }
+                    // const panoEl = document.createElement('div');
+                    // panoEl.setAttribute('id', 'pano');
+                    // const fsqEl = document.createElement('div');
+                    // fsqEl.setAttribute('id', 'fsq');
+                    // container.appendChild(panoEl);
+                    // container.appendChild(fsqEl);
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
                         loc, this.largeInfowindow.anchor.position
@@ -11167,26 +11217,45 @@ const gmaps = {
                     //     </div>
                     //     <div id="fsq"></div>`
                     // );
+                    /* Creating the infowindow elements */
+                    // Title elements
+                    const infowindowEl = document.createElement('div');
+                    const titleEl = document.createElement('div');
+                    titleEl.setAttribute('id', 'info-title');
+                    const titleSpan = document.createElement('span');
+                    titleSpan.setAttribute('class', 'info-title');
+                    titleSpan.textContent = this.largeInfowindow.anchor.title;
+                    titleEl.appendChild(titleSpan);
+
+                    // Streetview and Foursquare image elements
+                    const flexContainer = document.createElement('div');
+                    flexContainer.setAttribute('class', 'flex-container flex-center');
+                    const panoEl = document.createElement('div');
+                    panoEl.setAttribute('id', 'pano');
+                    panoEl.textContent('No StreetView available.')
+                    const fsqEl = document.createElement('div');
+                    fsqEl.setAttribute('id', 'fsq');
+                    flexContainer.appendChild(panoEl);
+                    flexContainer.appendChild(fsqEl);
+
+                    // Assemble the header part of infowindow
+                    infowindowEl.appendChild(titleEl);
+                    infowindowEl.appendChild(flexContainer);
+
+                    this.largeInfowindow.setContent(infowindowEl);
                 }
             }
 
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
-                console.log(this);
                 if (infowindow.marker !== selectedMarker) {
-                    console.log(1);
-                    console.log(infowindow.getContent());
                     infowindow.setContent(null);
-                    console.log(2);
-                    console.log(infowindow.getContent());
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
                     if (infowindow.marker) {
                         prevListItem = document.getElementById(infowindow.marker.id);
                     }
                     infowindow.setContent(content);
-                    console.log(3);
-                    console.log(infowindow.getContent());
                     infowindow.marker = selectedMarker;
 
                     // Launch foursquare search
