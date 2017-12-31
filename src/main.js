@@ -9,22 +9,31 @@ const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
+    let map;
+    let infoWindow;
     modal.init();
     media.init();
-    gmaps.initMaps();
+    gmaps.mapInit(this);
+    gmaps.infoWindowInit(this);
+    // gmaps.initMaps();
+    // let mapsLoaded = new Promise((res, rej) => {
+
+    // });
 
     // Grab required elements
     const menuIco = document.getElementById('menu-bar');
     const menuClose = document.getElementById('menu-close');
     const input = document.getElementById("filter-locations-text")
 
-    // Create places
-    const placesList = [];
-    places.forEach((place) => {
-        const placeItem = new Place(place);
-        gmaps.createMarker(placeItem);
-        placesList.push(placeItem);
-    });
+    // Create places once maps is loaded
+    this.placesList = ko.observableArray();
+    gmaps.mapPromise.then(() => {
+        places.forEach((place) => {
+            const placeItem = new Place(place);
+            gmaps.createMarker(this, placeItem);
+            this.placesList.push(placeItem);
+        });
+    })
 
     // Set up KO observables
     this.title = ko.observable('Cool Locations');
@@ -33,7 +42,7 @@ const ViewModel = function() {
     this.previousList = [];
     this.markerList = ko.computed(() => {
         let filteredList = (this.filterInput() == null) ?
-            placesList : placesList.filter((place) => {
+            this.placesList() : this.placesList().filter((place) => {
                 return place.title.toLowerCase()
                     .includes(this.filterInput().toLowerCase());
             });
@@ -44,6 +53,12 @@ const ViewModel = function() {
         }
         return filteredList;
     });
+    this.fsqImages = ko.observableArray();
+    // this.fsqImages([{thumbSrc: 'http://hello.hu', origSrc: 'http://hallo.hu'}]);
+
+    this.openModal = (src) => {
+        console.log(src);
+    }
 
     // Clicking on a list item
     this.clickPlace = (place) => {
@@ -81,4 +96,3 @@ const InfowindowViewModel = function() {
 }
 
 ko.applyBindings(new ViewModel());
-console.log(document.getElementById('map-canvas'));
