@@ -3,12 +3,6 @@ const modal = require('./modal');
 
 function venueCallback(err, resp) {
     if (!err) {
-        // const infowindowEl = window.largeInfowindow.getContent();
-        // console.log(infowindowEl);
-        // const headerEl = infowindowEl.firstChild;
-        // const fsqEl = infowindowEl.lastChild.lastChild;
-        // console.log(headerEl);
-        // console.log(fsqEl);
         // Grab info of the place
         const venue = resp.response.venue;
         const status = venue.hours ? venue.hours.status : '';
@@ -22,60 +16,35 @@ function venueCallback(err, resp) {
         // Grab max 3 pictures of the place
         const photos = venue.photos;
         const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-        // const imgContainer = document.createElement("div");
-        // imgContainer.setAttribute("class", "flex-container flex-column");
-        let imgHTML = '<div class="flex-container flex-column">';
+        let fsqImages = [];
         if (photoCnt === 0) {
-            imgHTML += 'No photos found for this place.';
+            fsqImages = null;
         }
         for (let i = 0; i < photoCnt; i++) {
             const photo = photos.groups[0].items[i];
             const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
             const origUrl = `${photo.prefix}original${photo.suffix}`;
-            imgHTML += '<a class="place-img-ele">';
-            imgHTML += `<img src="${thumbUrl}" alt="Photo of place #${i+1}">`;
-            imgHTML += '</a>';
-            // const a = document.createElement("a");
-            // a.setAttribute("class", "place-img-ele")
-            // const photoEl = document.createElement("img");
-            // photoEl.setAttribute("src", thumbUrl);
-            // photoEl.setAttribute("alt", "Photo of place");
-            // a.appendChild(photoEl);
-            // imgContainer.appendChild(a);
-
-            /*
-            // MODAL UPDATE REQUIRED -- NEW VIEWMODEL //
-            */
-            // a.addEventListener('click', function() {
-            //     modal.updateModal(origUrl)
-            // });
+            fsqImages.push({thumbSrc: thumbUrl, origSrc: origUrl});
         }
-        imgHTML += '</div>'
-
-        // Extend the title with available info
-        // const title = document.getElementById("info-title");
-        // let newTitle = title.innerHTML;
-        let titleHTML = '';
+        let fsqStatus = document.createElement('div');
         if (category) {
-            // newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
             const infoSpan = document.createElement('span');
             infoSpan.setAttribute('class', 'info');
             infoSpan.innerHTML = `<strong>Type:</strong> ${category}`;
-            // headerEl.appendChild(infoSpan);
-            titleHTML += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            fsqStatus.appendChild(infoSpan);
         }
         if (status !== '') {
-            // newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
-            titleHTML += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+            const statusSpan = document.createElement('span');
+            statusSpan.setAttribute('class', 'info');
+            statusSpan.innerHTML = `<strong>Status:</strong> ${status}`;
+            fsqStatus.appendChild(statusSpan);
         }
         if (rating) {
-            // newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
-            titleHTML += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+            const ratingSpan = document.createElement('span');
+            ratingSpan.setAttribute('class', 'info');
+            ratingSpan.innerHTML = `<strong>Rating:</strong> ${rating}`;
+            fsqStatus.appendChild(ratingSpan);
         }
-        // title.innerHTML = newTitle;
-
-        // const fsqEl = document.getElementById("fsq");
-        // fsqEl.appendChild(imgContainer);
 
         /* TODO */
         // resize the map if infowindow does not fit
@@ -84,8 +53,7 @@ function venueCallback(err, resp) {
         // console.log(window.largeInfowindow.getContent());
         // window.largeInfowindow.setContent(infowindowEl);
 
-
-
+        return [fsqStatus, fsqImages];
 
     } else {
         console.log('Something went wrong with Foursquare API.');

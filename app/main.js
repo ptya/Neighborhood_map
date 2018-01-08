@@ -10729,43 +10729,43 @@ const places = [
         id: "place-0",
         title: "Városmajor",
         position: {lat: 47.5078037, lng: 19.017604699999993},
-        place_id: "ChIJNYMnvrzeQUcRSwlMyQRFsuA",
-        fsq_id: "4bbdf77fa0a0c9b6813b1c0f"
+        placeID: "ChIJNYMnvrzeQUcRSwlMyQRFsuA",
+        fsqID: "4bbdf77fa0a0c9b6813b1c0f"
     },
     {
         id: "place-1",
         title: "Cooltour Bar III.",
         position: {lat: 47.50986779999999, lng: 19.02450190000002},
-        place_id: "ChIJSQFT26beQUcRScnVLv-m26U",
-        fsq_id: "51aa67da498ef9ce6a081be2"
+        placeID: "ChIJSQFT26beQUcRScnVLv-m26U",
+        fsqID: "51aa67da498ef9ce6a081be2"
     },
     {
         id: "place-2",
         title: "Matthias Church",
         position: {lat: 47.5019537, lng: 19.034161700000027},
-        place_id: "ChIJ1yuefiLcQUcR1Uppb4xy0GI",
-        fsq_id: "4b95fe79f964a5208eb934e3"
+        placeID: "ChIJ1yuefiLcQUcR1Uppb4xy0GI",
+        fsqID: "4b95fe79f964a5208eb934e3"
     },
     {
         id: "place-3",
         title: "Margaret Island Fountain",
         position: {lat: 47.5187803, lng: 19.044795399999998},
-        place_id: "ChIJO4BOFgfcQUcRwlgwK3OK1Fk",
-        fsq_id: "4db43dc1fa8c350240e05a26"
+        placeID: "ChIJO4BOFgfcQUcRwlgwK3OK1Fk",
+        fsqID: "4db43dc1fa8c350240e05a26"
     },
     {
         id: "place-4",
         title: "Hold Street Market",
         position: {lat: 47.50482799999999, lng: 19.052649400000064},
-        place_id: "ChIJc7gZbhPcQUcRjPopkeIJEhA",
-        fsq_id: "4bd02be477b29c74233a8a82"
+        placeID: "ChIJc7gZbhPcQUcRjPopkeIJEhA",
+        fsqID: "4bd02be477b29c74233a8a82"
     },
     {
         id: "place-5",
         title: "PONTOON",
         position: {lat: 47.4996289, lng: 19.04621199999997},
-        place_id: "ChIJXXOqGD7cQUcRLF8-QKqmVDM",
-        fsq_id: "59064651446ea60929669886"
+        placeID: "ChIJXXOqGD7cQUcRLF8-QKqmVDM",
+        fsqID: "59064651446ea60929669886"
     }
 ];
 
@@ -10779,12 +10779,14 @@ const modal = require('./modules/modal');
 const moveMenu = require('./modules/menu');
 const Place = require('./models/Place');
 const places = require('./data/places');
+const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
 const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
     let map;
-    let infoWindow;
+    this.infoWindow;
+    // let infoWindow;
     modal.init();
     media.init();
     gmaps.mapInit(this);
@@ -10793,6 +10795,88 @@ const ViewModel = function() {
     // let mapsLoaded = new Promise((res, rej) => {
 
     // });
+
+    // foursquare functions
+    this.grabFsqData = function(place) {
+        function updatePlace(data) {
+            /*
+            * data[0] = fsqStatus
+            * data[1] = fsqImages
+            */
+            const status = data[0];
+            const images = data[1];
+            place.updateFsqStatus(status);
+            place.updateFsqImages(images);
+        }
+        function venueCallback(err, resp) {
+            if (!err) {
+                // Grab info of the place
+                const venue = resp.response.venue;
+                const status = venue.hours ? venue.hours.status : '';
+                const rating = venue.rating;
+                const categories = venue.categories;
+                let category;
+                if (categories) {
+                    category = categories[0].name;
+                }
+
+                // Grab max 3 pictures of the place
+                const photos = venue.photos;
+                const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
+                let fsqImages = [];
+                if (photoCnt === 0) {
+                    fsqImages = null;
+                }
+                for (let i = 0; i < photoCnt; i++) {
+                    const photo = photos.groups[0].items[i];
+                    const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
+                    const origUrl = `${photo.prefix}original${photo.suffix}`;
+                    fsqImages.push({thumbSrc: thumbUrl, origSrc: origUrl});
+                }
+                let fsqStatus = '';
+                if (category) {
+                    fsqStatus += `<span class="info"><strong>Type:</strong> ${category}</span>`;
+                }
+                if (status !== '') {
+                    fsqStatus += `<span class="info"><strong>Status:</strong> ${status}</span>`;
+                }
+                if (rating) {
+                    fsqStatus += `<span class="info"><strong>Rating:</strong> ${rating}</span>`;
+                }
+
+                /* TODO */
+                // resize the map if infowindow does not fit
+                // window.largeInfowindow.open(window.map);
+                // const infowindowContent = window.largeInfowindow.getContent();
+                // console.log(window.largeInfowindow.getContent());
+                // window.largeInfowindow.setContent(infowindowEl);
+
+                updatePlace([fsqStatus, fsqImages]);
+            } else {
+                console.log('Something went wrong with Foursquare API.');
+            }
+        }
+
+        function searchCallback(err, resp) {
+            if (!err) {
+                const venues = resp.response.venues;
+                if (venues.length > 0) {
+                    const venueID = resp.response.venues[0].id;
+                    const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
+                } else {
+                    console.log('Foursquare result not available.');
+                }
+            } else {
+                console.log('Something went wrong with Foursquare API.');
+            }
+        }
+
+        const searchObj = {
+            ll: `${place.position.lat},${place.position.lng}`,
+            query: place.title
+        };
+        fsqAPI.venues.search(searchObj, searchCallback);
+    }
 
     // Grab required elements
     const menuIco = document.getElementById('menu-bar');
@@ -10806,6 +10890,8 @@ const ViewModel = function() {
             const placeItem = new Place(place);
             gmaps.createMarker(this, placeItem);
             this.placesList.push(placeItem);
+            // Collect foursquare information in advance
+            this.grabFsqData(placeItem);
         });
     })
 
@@ -10828,10 +10914,14 @@ const ViewModel = function() {
         return filteredList;
     });
     this.fsqImages = ko.observableArray();
-    // this.fsqImages([{thumbSrc: 'http://hello.hu', origSrc: 'http://hallo.hu'}]);
+    this.fsqImages([
+        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
+        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
+        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
+    ]);
 
-    this.openModal = (src) => {
-        console.log(src);
+    this.openModal = (imgSrcs) => {
+        console.log(imgSrcs.origSrc);
     }
 
     // Clicking on a list item
@@ -10857,6 +10947,12 @@ const ViewModel = function() {
 
     }
 
+    setInterval(function(){
+        console.log('>>');
+        console.log(this.infoWindow);
+        console.log('<<');
+    }, 5000);
+
     // Add listeners
     input.addEventListener('keyup', (e) => {
         if (e.keyCode === 13) this.enterPlace()
@@ -10871,13 +10967,28 @@ const InfowindowViewModel = function() {
 
 ko.applyBindings(new ViewModel());
 
-},{"../lib/knockout/knockout-3.4.2":38,"./data/places":45,"./models/Place":47,"./modules/maps":49,"./modules/media":50,"./modules/menu":51,"./modules/modal":52,"underscore":44}],47:[function(require,module,exports){
+},{"../lib/knockout/knockout-3.4.2":38,"./data/places":45,"./models/Place":47,"./modules/maps":49,"./modules/media":50,"./modules/menu":51,"./modules/modal":52,"node-foursquare-venues":43,"underscore":44}],47:[function(require,module,exports){
 const Place = function (data) {
     this.id = data.id;
     this.title = data.title;
     this.position = data.position;
-    this.place_id = data.place_id;
-    this.fsq_id = data.fsq_id;
+    this.placeID = data.placeID;
+    this.fsqID = data.fsqID;
+    // this.fsqImgs = [
+    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
+    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
+    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
+    // ];
+    this.fsqImages = [];
+    this.fsqStatus = null;
+
+    this.updateFsqImages = function(fsqImgData) {
+        this.fsqImages = fsqImgData;
+    }
+
+    this.updateFsqStatus = function(fsqStatusData) {
+        this.fsqStatus = fsqStatusData;
+    }
 };
 
 module.exports = Place;
@@ -10887,12 +10998,6 @@ const modal = require('./modal');
 
 function venueCallback(err, resp) {
     if (!err) {
-        // const infowindowEl = window.largeInfowindow.getContent();
-        // console.log(infowindowEl);
-        // const headerEl = infowindowEl.firstChild;
-        // const fsqEl = infowindowEl.lastChild.lastChild;
-        // console.log(headerEl);
-        // console.log(fsqEl);
         // Grab info of the place
         const venue = resp.response.venue;
         const status = venue.hours ? venue.hours.status : '';
@@ -10906,60 +11011,35 @@ function venueCallback(err, resp) {
         // Grab max 3 pictures of the place
         const photos = venue.photos;
         const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-        // const imgContainer = document.createElement("div");
-        // imgContainer.setAttribute("class", "flex-container flex-column");
-        let imgHTML = '<div class="flex-container flex-column">';
+        let fsqImages = [];
         if (photoCnt === 0) {
-            imgHTML += 'No photos found for this place.';
+            fsqImages = null;
         }
         for (let i = 0; i < photoCnt; i++) {
             const photo = photos.groups[0].items[i];
             const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
             const origUrl = `${photo.prefix}original${photo.suffix}`;
-            imgHTML += '<a class="place-img-ele">';
-            imgHTML += `<img src="${thumbUrl}" alt="Photo of place #${i+1}">`;
-            imgHTML += '</a>';
-            // const a = document.createElement("a");
-            // a.setAttribute("class", "place-img-ele")
-            // const photoEl = document.createElement("img");
-            // photoEl.setAttribute("src", thumbUrl);
-            // photoEl.setAttribute("alt", "Photo of place");
-            // a.appendChild(photoEl);
-            // imgContainer.appendChild(a);
-
-            /*
-            // MODAL UPDATE REQUIRED -- NEW VIEWMODEL //
-            */
-            // a.addEventListener('click', function() {
-            //     modal.updateModal(origUrl)
-            // });
+            fsqImages.push({thumbSrc: thumbUrl, origSrc: origUrl});
         }
-        imgHTML += '</div>'
-
-        // Extend the title with available info
-        // const title = document.getElementById("info-title");
-        // let newTitle = title.innerHTML;
-        let titleHTML = '';
+        let fsqStatus = document.createElement('div');
         if (category) {
-            // newTitle += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
             const infoSpan = document.createElement('span');
             infoSpan.setAttribute('class', 'info');
             infoSpan.innerHTML = `<strong>Type:</strong> ${category}`;
-            // headerEl.appendChild(infoSpan);
-            titleHTML += ` <span class="info"><strong>Type:</strong> ${category}</span>`;
+            fsqStatus.appendChild(infoSpan);
         }
         if (status !== '') {
-            // newTitle += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
-            titleHTML += ` <span class="info"><strong>Status:</strong> ${status}</span>`;
+            const statusSpan = document.createElement('span');
+            statusSpan.setAttribute('class', 'info');
+            statusSpan.innerHTML = `<strong>Status:</strong> ${status}`;
+            fsqStatus.appendChild(statusSpan);
         }
         if (rating) {
-            // newTitle += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
-            titleHTML += ` <span class="info"><strong>Rating:</strong> ${rating}/10</span>`;
+            const ratingSpan = document.createElement('span');
+            ratingSpan.setAttribute('class', 'info');
+            ratingSpan.innerHTML = `<strong>Rating:</strong> ${rating}`;
+            fsqStatus.appendChild(ratingSpan);
         }
-        // title.innerHTML = newTitle;
-
-        // const fsqEl = document.getElementById("fsq");
-        // fsqEl.appendChild(imgContainer);
 
         /* TODO */
         // resize the map if infowindow does not fit
@@ -10968,8 +11048,7 @@ function venueCallback(err, resp) {
         // console.log(window.largeInfowindow.getContent());
         // window.largeInfowindow.setContent(infowindowEl);
 
-
-
+        return [fsqStatus, fsqImages];
 
     } else {
         console.log('Something went wrong with Foursquare API.');
@@ -11044,15 +11123,16 @@ const gmaps = {
         });
     },
     infoWindowInit: function(viewModel) {
-        let infoWindowHTML = '<div id="info-window">'
-        infoWindowHTML += '<div id="info-title" data-bind="with: activePlace">';
-        infoWindowHTML += '<span class="info-title" data-bind="text: title"></span>';
+        let infoWindowHTML = '<div id="info-window" data-bind="with: activePlace">'
+        infoWindowHTML += '<div id="info-title" >';
+        infoWindowHTML += '<h2 class="info-title" data-bind="text: title"></h2>';
+        infoWindowHTML += '<div data-bind="html: fsqStatus"></div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '<div class="flex-container flex-center">';
         infoWindowHTML += '<div id="pano"></div>';
-        infoWindowHTML += '<div id="fsq" data-bind="foreach: fsqImages">'
-        infoWindowHTML += '<a class="place-img-ele">';
-        infoWindowHTML += '<img alt="Photo of place" data-bind="attr: {src: thumbSrc}, click: $parent.openModal(origSrc)">';
+        infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="foreach: fsqImages">';
+        infoWindowHTML += '<a class="place-img-ele" href="#">';
+        infoWindowHTML += '<img alt="Photo of place" data-bind="attr: {src: thumbSrc}, click: $root.openModal">';
         infoWindowHTML += '</a>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
@@ -11066,6 +11146,7 @@ const gmaps = {
                 content: infoWindowHTML
             });
             viewModel.infoWindow = infoWindow;
+            window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
             * Only do this once.
@@ -11074,49 +11155,18 @@ const gmaps = {
                 console.log('ready');
                 console.log(isInfoWindowLoaded);
                 if (!isInfoWindowLoaded) {
+                    console.log('apply binding');
                     isInfoWindowLoaded = true;
                     ko.applyBindings(viewModel, document.getElementById('info-window'));
                 }
                 console.log(isInfoWindowLoaded);
             });
+
+
         }, (err) => {
             console.error(err);
         });
 
-    },
-    initMaps: function() {
-        mapsPromise.then((google) => {
-                const bp = new google.maps.LatLng(47.4979, 19.0402);
-                const options = {
-                    center: bp,
-                    zoom: 15,
-                    mapTypeControl: false
-                };
-                window.map = new google.maps.Map(mapEl, options);
-                window.markers = [];
-
-                const content = this.baseInfowindow();
-
-                window.largeInfowindow = new google.maps.InfoWindow({content: this.baseInfowindow()});
-                console.log(0);
-                console.log(window.largeInfowindow.getContent());
-                // set up event listener to auto-zoom if bounds change
-                google.maps.event.addListener(window.map, 'bounds_changed', function() {
-                    let zoom = window.map.getZoom();
-                    // set minimum zoom level
-                    if (zoom > 16) {
-                        window.map.setZoom(16);
-                    } else {
-                        window.map.setZoom(zoom);
-                    }
-                });
-                // set up event listener to center the map if window size changes
-                google.maps.event.addDomListener(window, 'resize', this.centerMap);
-            }, (err) => {
-                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
-                console.error(err);
-            }
-        );
     },
     resize: function() {
         const map = window.map;
@@ -11154,6 +11204,7 @@ const gmaps = {
             }
             // Adding streetview to infowindow
             function processStreetView(data, status) {
+                console.log('ping');
                 if (status === google.maps.StreetViewStatus.OK) {
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
@@ -11191,6 +11242,7 @@ const gmaps = {
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
+                    console.log('not the same');
                     // infowindow.setContent(null);
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
@@ -11199,13 +11251,6 @@ const gmaps = {
                     }
                     // infowindow.setContent(content);
                     infowindow.marker = selectedMarker;
-
-                    // Launch foursquare search
-                    const searchObj = {
-                        ll: `${selectedMarker.position.lat()},${selectedMarker.position.lng()}`,
-                        query: selectedMarker.title
-                    };
-                    fsq.search(searchObj);
 
                     // Setup streetview
                     const SVService = new google.maps.StreetViewService();
@@ -11229,6 +11274,10 @@ const gmaps = {
                         }
                         infowindow.marker = null;
                     });
+
+                    console.log(viewModel.infoWindow);
+                } else {
+                    console.log('it is the same');
                 }
             }
 
@@ -11257,6 +11306,7 @@ const gmaps = {
                 viewModel.activePlace(place);
                 populateInfoWindow(this, viewModel.infoWindow);
                 markerBounce(this);
+                console.log(viewModel);
                 console.log(viewModel.activePlace());
             });
             marker.addListener('mouseover', function() {

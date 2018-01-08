@@ -33,6 +33,7 @@ h1 {
 }
 
 .flex-column {
+  align-self: flex-start;
   flex-direction: column;
 }
 
