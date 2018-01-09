@@ -16,7 +16,7 @@ For best experience, use [Google Chrome](https://www.google.com/chrome/browser/d
 #### 3rd party modules used:
 - [NPM](https://www.npmjs.com/)
     - [underscore](https://www.npmjs.com/package/underscore)
-    - [google-maps](https://www.npmjs.com/package/google-maps)
+    - [google-maps-api-loader](https://www.npmjs.com/package/google-maps-api-loader)
     - [node-foursquare-venues](https://www.npmjs.com/package/node-foursquare-venues)
 - [Browserify](http://browserify.org/) with [Watchify](https://www.npmjs.com/package/watchify)
 - [Knockout 3.4.2](http://knockoutjs.com/)
