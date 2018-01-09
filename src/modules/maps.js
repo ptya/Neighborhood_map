@@ -1,11 +1,11 @@
 const GoogleMapsApiLoader = require('google-maps-api-loader'); // eslint-disable-line import/no-unresolved
 const ko = require('../../lib/knockout/knockout-3.4.2');
-const fsq = require('./fsq');
 
 const mapEl = document.getElementById('map-canvas');
 const mapsPromise = GoogleMapsApiLoader({
     libraries: ['geometry', 'places'],
-    apiKey: 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU'
+    apiKey: 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU',
+    language: 'EN'
 }).then(
     (google) => google,
     (err) => {
@@ -16,7 +16,7 @@ const mapsPromise = GoogleMapsApiLoader({
 
 const gmaps = {
     mapPromise: mapsPromise,
-    mapInit: function(viewModel) {
+    mapInit: function() {
         mapsPromise.then((google) => {
             const bp = new google.maps.LatLng(47.4979, 19.0402);
             const options = {
@@ -24,36 +24,41 @@ const gmaps = {
                 zoom: 15,
                 mapTypeControl: false
             };
-            viewModel.map = new google.maps.Map(mapEl, options);
+            const map = new google.maps.Map(mapEl, options);
             // set up event listener to auto-zoom if bounds change
-            google.maps.event.addListener(viewModel.map, 'bounds_changed', function() {
-                let zoom = viewModel.map.getZoom();
+            google.maps.event.addListener(map, 'bounds_changed', function() {
+                let zoom = map.getZoom();
                 // set minimum zoom level
                 if (zoom > 16) {
-                    viewModel.map.setZoom(16);
+                    map.setZoom(16);
                 } else {
-                    viewModel.map.setZoom(zoom);
+                    map.setZoom(zoom);
                 }
             });
             // set up event listener to center the map if window size changes
-            google.maps.event.addDomListener(window, 'resize', this.centerMap);
+            google.maps.event.addDomListener(window, 'resize', () => {
+                this.resize();
+            });
+            window.map = map;
             window.markers = [];
         }, (err) => {
             console.error(err);
         });
     },
     infoWindowInit: function(viewModel) {
-        let infoWindowHTML = '<div id="info-window" data-bind="with: activePlace">'
-        infoWindowHTML += '<div id="info-title" >';
+        let infoWindowHTML = '<div id="info-window">'
+        infoWindowHTML += '<div id="info-title" data-bind="with: activePlace">';
         infoWindowHTML += '<h2 class="info-title" data-bind="text: title"></h2>';
         infoWindowHTML += '<div data-bind="html: fsqStatus"></div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '<div class="flex-container flex-center">';
         infoWindowHTML += '<div id="pano"></div>';
-        infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="foreach: fsqImages">';
-        infoWindowHTML += '<a class="place-img-ele" href="#">';
+        infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="with: activePlace">';
+        infoWindowHTML += '<div data-bind="foreach: fsqImages">';
+        infoWindowHTML += '<a class="place-img-ele" href="#" >';
         infoWindowHTML += '<img alt="Photo of place" data-bind="attr: {src: thumbSrc}, click: $root.openModal">';
         infoWindowHTML += '</a>';
+        infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
@@ -66,50 +71,24 @@ const gmaps = {
                 content: infoWindowHTML
             });
             viewModel.infoWindow = infoWindow;
-            window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
             * Only do this once.
             */
             google.maps.event.addListener(infoWindow, 'domready', function () {
-                console.log('ready');
-                console.log(isInfoWindowLoaded);
                 if (!isInfoWindowLoaded) {
-                    console.log('apply binding');
                     isInfoWindowLoaded = true;
                     ko.applyBindings(viewModel, document.getElementById('info-window'));
                 }
-                console.log(isInfoWindowLoaded);
             });
-
-
         }, (err) => {
             console.error(err);
         });
-
-    },
-    resize: function() {
-        const map = window.map;
-        if (map) {
-            const center = map.getCenter();
-            mapsPromise.then((google) => {
-                const repeatResize = setInterval(function(){
-                    google.maps.event.trigger(map, "resize");
-                    map.panTo(center);
-                }, 5);
-                setTimeout(function(){
-                    clearTimeout(repeatResize);
-                }, 300);
-            }, (err) => {
-                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
-                console.error(err);
-            });
-        }
     },
     createMarker: function(viewModel, place) {
         mapsPromise.then((google) => {
+            const map = window.map;
 
-            // helper functions
             function makeMarkerIcon(color) {
                 const markerImage = new google.maps.MarkerImage(
                     'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' +
@@ -122,9 +101,9 @@ const gmaps = {
                 );
                 return markerImage;
             }
+
             // Adding streetview to infowindow
             function processStreetView(data, status) {
-                console.log('ping');
                 if (status === google.maps.StreetViewStatus.OK) {
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
@@ -155,21 +134,18 @@ const gmaps = {
                         clearInterval(move);
                     }, 1500);
                 } else {
-                    console.log(':(');
+                    console.log('Street View data not found for this location.');
                 }
             }
 
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
-                    console.log('not the same');
-                    // infowindow.setContent(null);
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
                     if (infowindow.marker) {
                         prevListItem = document.getElementById(infowindow.marker.id);
                     }
-                    // infowindow.setContent(content);
                     infowindow.marker = selectedMarker;
 
                     // Setup streetview
@@ -177,8 +153,7 @@ const gmaps = {
                     const rad = 50;
                     SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
 
-                    // open the infowindow
-                    infowindow.open(viewModel.map, selectedMarker);
+                    infowindow.open(map, selectedMarker);
 
                     // make the item active in the list
                     listItem.classList.toggle("active");
@@ -186,7 +161,6 @@ const gmaps = {
                         prevListItem.classList.toggle("active");
                     }
 
-                    // event listener for closing the infowindow
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {
                             const currentItem = document.getElementById(infowindow.marker.id);
@@ -194,10 +168,6 @@ const gmaps = {
                         }
                         infowindow.marker = null;
                     });
-
-                    console.log(viewModel.infoWindow);
-                } else {
-                    console.log('it is the same');
                 }
             }
 
@@ -212,7 +182,7 @@ const gmaps = {
             const highlightedIcon = makeMarkerIcon('ff6464');
             const marker = new google.maps.Marker({
                 position: place.position,
-                map: viewModel.map,
+                map: map,
                 title: place.title,
                 animation: google.maps.Animation.DROP,
                 icon: defaultIcon,
@@ -220,14 +190,22 @@ const gmaps = {
             });
             window.markers.push(marker);
 
-            // add listeners
             marker.addListener('click', function() {
-                console.log('click');
                 viewModel.activePlace(place);
-                populateInfoWindow(this, viewModel.infoWindow);
-                markerBounce(this);
-                console.log(viewModel);
-                console.log(viewModel.activePlace());
+                /*
+                * Need to check if screen size is wide enough
+                * If not there needs to be some delay to fully render
+                */
+                const smallSize = viewModel.checkSize();
+                if (smallSize) {
+                    setTimeout(() => {
+                        populateInfoWindow(this, viewModel.infoWindow);
+                        markerBounce(this);
+                    }, 300)
+                } else {
+                    populateInfoWindow(this, viewModel.infoWindow);
+                    markerBounce(this);
+                }
             });
             marker.addListener('mouseover', function() {
                 this.setIcon(highlightedIcon);
@@ -236,6 +214,8 @@ const gmaps = {
                 this.setIcon(defaultIcon);
             });
 
+            // to avoid zooming onto the first marker created
+            this.centerMap();
         },
         (err) => {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
@@ -265,6 +245,24 @@ const gmaps = {
             console.error(err);
         });
     },
+    resize: function() {
+        const map = window.map;
+        if (map) {
+            const center = map.getCenter();
+            mapsPromise.then((google) => {
+                const repeatResize = setInterval(function(){
+                    google.maps.event.trigger(map, "resize");
+                    map.panTo(center);
+                }, 5);
+                setTimeout(function(){
+                    clearTimeout(repeatResize);
+                }, 300);
+            }, (err) => {
+                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+                console.error(err);
+            });
+        }
+    },
     filterMarkers: function(filteredMarkers) {
         const markers = window.markers;
         const filteredTitles = filteredMarkers.map((place) => place.title);
@@ -291,12 +289,7 @@ const gmaps = {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
             console.error(err);
         });
-    },
-    addFsqData: function(data) {
-        console.log(data);
-        console.log('eh?');
     }
 }
-
 
 module.exports = gmaps;

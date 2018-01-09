@@ -4,39 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cool Overview Of Locations</title>
-    <link rel='stylesheet' href="http://fonts.googleapis.com/css?family=Roboto:400,300,700">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Indie+Flower|Roboto:300,400,700">
     <link rel="stylesheet" href="lib/bootstrap-4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="lib/font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
     <div class="flex-container max-height">
-        <div id="menu" class="menu">
+        <aside id="menu" class="menu">
             <h1 data-bind="text: title"></h1>
-            <i id="menu-close" class="fa fa-times fa-2x x-button fade-in" aria-hidden="true"></i>
-            <div class="form-inline nowrap">
+            <i id="menu-close" class="fa fa-times fa-2x x-button fade-in" aria-hidden="true" data-bind="click: moveMenu"></i>
+            <form class="form-inline nowrap">
                 <i class="fa fa-filter fa-lg filter-ico" aria-hidden="true"></i>
                 <input id="filter-locations-text" class="form-control filter-input"
-                    data-bind="textInput: filterInput" type="text"
+                    data-bind="textInput: filterInput, event: { keyup: lookForEnter }" type="text"
                     placeholder="Type to filter results..">
-            </div>
+            </form>
             <hr>
-            <div class="list-group" data-bind="foreach: markerList">
+            <nav class="list-group" data-bind="foreach: markerList">
                 <a href="#" class="list-group-item list-group-item-action"
                     data-bind="text: title,
                                click: $parent.clickPlace,
                                attr: {'id': id}">
                     <i class="fa fa-map-marker" aria-hidden="true"></i>
                 </a>
-            </div>
-        </div>
+            </nav>
+        </aside>
         <div class="main">
-            <div class="header">
-                <i id="menu-bar" class="fa fa-bars fa-lg menu-ico fade-out" aria-hidden="true"></i>
+            <header class="header">
+                <i id="menu-bar" class="fa fa-bars fa-lg menu-ico fade-out" aria-hidden="true"  data-bind="click: moveMenu"></i>
                 <h1 id="title" class="title fade-out" data-bind="text: title"></h1>
-            </div>
-            <div id ="map-canvas" class="">
-            </div>
+            </header>
+            <main id ="map-canvas" class="">
+            </main>
         </div>
     </div>
     <!-- Modal window -->

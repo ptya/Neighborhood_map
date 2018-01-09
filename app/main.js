@@ -10775,7 +10775,6 @@ module.exports = places;
 const gmaps = require('./modules/maps');
 const ko = require('../lib/knockout/knockout-3.4.2');
 const media = require('./modules/media');
-const modal = require('./modules/modal');
 const moveMenu = require('./modules/menu');
 const Place = require('./models/Place');
 const places = require('./data/places');
@@ -10784,27 +10783,14 @@ const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
-    let map;
     this.infoWindow;
-    // let infoWindow;
-    modal.init();
     media.init();
     gmaps.mapInit(this);
     gmaps.infoWindowInit(this);
-    // gmaps.initMaps();
-    // let mapsLoaded = new Promise((res, rej) => {
-
-    // });
 
     // foursquare functions
     this.grabFsqData = function(place) {
-        function updatePlace(data) {
-            /*
-            * data[0] = fsqStatus
-            * data[1] = fsqImages
-            */
-            const status = data[0];
-            const images = data[1];
+        function updatePlace(status, images=null) {
             place.updateFsqStatus(status);
             place.updateFsqImages(images);
         }
@@ -10844,29 +10830,24 @@ const ViewModel = function() {
                     fsqStatus += `<span class="info"><strong>Rating:</strong> ${rating}</span>`;
                 }
 
-                /* TODO */
-                // resize the map if infowindow does not fit
-                // window.largeInfowindow.open(window.map);
-                // const infowindowContent = window.largeInfowindow.getContent();
-                // console.log(window.largeInfowindow.getContent());
-                // window.largeInfowindow.setContent(infowindowEl);
-
-                updatePlace([fsqStatus, fsqImages]);
+                updatePlace(fsqStatus, fsqImages);
             } else {
                 console.log('Something went wrong with Foursquare API.');
             }
         }
 
         function searchCallback(err, resp) {
+            const errStatus = '<span class="info">Foursquare result not available.</span>';
             if (!err) {
                 const venues = resp.response.venues;
                 if (venues.length > 0) {
                     const venueID = resp.response.venues[0].id;
-                    const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
+                    fsqAPI.venues.venue(venueID, venueCallback);
                 } else {
-                    console.log('Foursquare result not available.');
+                    updatePlace(errStatus);
                 }
             } else {
+                updatePlace(errStatus);
                 console.log('Something went wrong with Foursquare API.');
             }
         }
@@ -10881,7 +10862,10 @@ const ViewModel = function() {
     // Grab required elements
     const menuIco = document.getElementById('menu-bar');
     const menuClose = document.getElementById('menu-close');
-    const input = document.getElementById("filter-locations-text")
+    const input = document.getElementById("filter-locations-text");
+    const modalEl = document.getElementById('myModal');
+    const closeModalBtn = document.getElementsByClassName('close-modal')[0];
+    const modalImg = document.getElementById('imgModal');
 
     // Create places once maps is loaded
     this.placesList = ko.observableArray();
@@ -10913,16 +10897,7 @@ const ViewModel = function() {
         }
         return filteredList;
     });
-    this.fsqImages = ko.observableArray();
-    this.fsqImages([
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
-    ]);
 
-    this.openModal = (imgSrcs) => {
-        console.log(imgSrcs.origSrc);
-    }
 
     // Clicking on a list item
     this.clickPlace = (place) => {
@@ -10936,6 +10911,16 @@ const ViewModel = function() {
         }
     };
 
+    // Check if screen size is small
+    this.checkSize = () => {
+        if(media.smallSize.matches) {
+            media.closedMenu();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // Hitting enter on the filter
     this.enterPlace = () => {
         if (this.filterInput()) {
@@ -10943,42 +10928,29 @@ const ViewModel = function() {
         }
     };
 
-    this.updateModal = (src) => {
-
+    // Modal handlers
+    this.openModal = (imgSrcs) => {
+        modalEl.style.display = 'flex';
+        modalImg.src = imgSrcs.origSrc;
     }
+    this.closeModal = () => modalEl.style.display = 'none';
 
-    setInterval(function(){
-        console.log('>>');
-        console.log(this.infoWindow);
-        console.log('<<');
-    }, 5000);
-
-    // Add listeners
-    input.addEventListener('keyup', (e) => {
+    // Events
+    this.lookForEnter = (d, e) => {
         if (e.keyCode === 13) this.enterPlace()
-    });
-    menuIco.addEventListener('click', moveMenu);
-    menuClose.addEventListener('click', moveMenu);
+    };
+    this.moveMenu = () => moveMenu();
 };
-
-const InfowindowViewModel = function() {
-    this.proba = ko.observable('No ez működik');
-}
 
 ko.applyBindings(new ViewModel());
 
-},{"../lib/knockout/knockout-3.4.2":38,"./data/places":45,"./models/Place":47,"./modules/maps":49,"./modules/media":50,"./modules/menu":51,"./modules/modal":52,"node-foursquare-venues":43,"underscore":44}],47:[function(require,module,exports){
+},{"../lib/knockout/knockout-3.4.2":38,"./data/places":45,"./models/Place":47,"./modules/maps":48,"./modules/media":49,"./modules/menu":50,"node-foursquare-venues":43,"underscore":44}],47:[function(require,module,exports){
 const Place = function (data) {
     this.id = data.id;
     this.title = data.title;
     this.position = data.position;
     this.placeID = data.placeID;
     this.fsqID = data.fsqID;
-    // this.fsqImgs = [
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
-    // ];
     this.fsqImages = [];
     this.fsqStatus = null;
 
@@ -10993,99 +10965,14 @@ const Place = function (data) {
 
 module.exports = Place;
 },{}],48:[function(require,module,exports){
-const fsqAPI = require('node-foursquare-venues')('DAO3ODRAFGKNUOJPECEJWGWC1BYT4ILRO31PHCT5EE3U5EVT', 'BOU1F43LDLPMSOTT5PQT5CKV0NIOZGQPHISXIGX33WBJWWNW'); // eslint-disable-line import/no-unresolved
-const modal = require('./modal');
-
-function venueCallback(err, resp) {
-    if (!err) {
-        // Grab info of the place
-        const venue = resp.response.venue;
-        const status = venue.hours ? venue.hours.status : '';
-        const rating = venue.rating;
-        const categories = venue.categories;
-        let category;
-        if (categories) {
-            category = categories[0].name;
-        }
-
-        // Grab max 3 pictures of the place
-        const photos = venue.photos;
-        const photoCnt = (venue.photos.count > 3) ? 3 : venue.photos.count;
-        let fsqImages = [];
-        if (photoCnt === 0) {
-            fsqImages = null;
-        }
-        for (let i = 0; i < photoCnt; i++) {
-            const photo = photos.groups[0].items[i];
-            const thumbUrl = `${photo.prefix}100x100${photo.suffix}`;
-            const origUrl = `${photo.prefix}original${photo.suffix}`;
-            fsqImages.push({thumbSrc: thumbUrl, origSrc: origUrl});
-        }
-        let fsqStatus = document.createElement('div');
-        if (category) {
-            const infoSpan = document.createElement('span');
-            infoSpan.setAttribute('class', 'info');
-            infoSpan.innerHTML = `<strong>Type:</strong> ${category}`;
-            fsqStatus.appendChild(infoSpan);
-        }
-        if (status !== '') {
-            const statusSpan = document.createElement('span');
-            statusSpan.setAttribute('class', 'info');
-            statusSpan.innerHTML = `<strong>Status:</strong> ${status}`;
-            fsqStatus.appendChild(statusSpan);
-        }
-        if (rating) {
-            const ratingSpan = document.createElement('span');
-            ratingSpan.setAttribute('class', 'info');
-            ratingSpan.innerHTML = `<strong>Rating:</strong> ${rating}`;
-            fsqStatus.appendChild(ratingSpan);
-        }
-
-        /* TODO */
-        // resize the map if infowindow does not fit
-        // window.largeInfowindow.open(window.map);
-        // const infowindowContent = window.largeInfowindow.getContent();
-        // console.log(window.largeInfowindow.getContent());
-        // window.largeInfowindow.setContent(infowindowEl);
-
-        return [fsqStatus, fsqImages];
-
-    } else {
-        console.log('Something went wrong with Foursquare API.');
-    }
-
-}
-
-function searchCallback(err, resp) {
-    if (!err) {
-        const venues = resp.response.venues;
-        if (venues.length > 0) {
-            const venueID = resp.response.venues[0].id;
-            const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
-        } else {
-            console.log('Foursquare result not available.');
-        }
-    } else {
-        console.log('Something went wrong with Foursquare API.');
-    }
-}
-
-const fsq = {
-    search: function(searchObj) {
-        fsqAPI.venues.search(searchObj, searchCallback);
-    }
-}
-
-module.exports = fsq;
-},{"./modal":52,"node-foursquare-venues":43}],49:[function(require,module,exports){
 const GoogleMapsApiLoader = require('google-maps-api-loader'); // eslint-disable-line import/no-unresolved
 const ko = require('../../lib/knockout/knockout-3.4.2');
-const fsq = require('./fsq');
 
 const mapEl = document.getElementById('map-canvas');
 const mapsPromise = GoogleMapsApiLoader({
     libraries: ['geometry', 'places'],
-    apiKey: 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU'
+    apiKey: 'AIzaSyBtVhYYcioALZwMFZfDwCChRMOLT05sxUU',
+    language: 'EN'
 }).then(
     (google) => google,
     (err) => {
@@ -11096,7 +10983,7 @@ const mapsPromise = GoogleMapsApiLoader({
 
 const gmaps = {
     mapPromise: mapsPromise,
-    mapInit: function(viewModel) {
+    mapInit: function() {
         mapsPromise.then((google) => {
             const bp = new google.maps.LatLng(47.4979, 19.0402);
             const options = {
@@ -11104,36 +10991,41 @@ const gmaps = {
                 zoom: 15,
                 mapTypeControl: false
             };
-            viewModel.map = new google.maps.Map(mapEl, options);
+            const map = new google.maps.Map(mapEl, options);
             // set up event listener to auto-zoom if bounds change
-            google.maps.event.addListener(viewModel.map, 'bounds_changed', function() {
-                let zoom = viewModel.map.getZoom();
+            google.maps.event.addListener(map, 'bounds_changed', function() {
+                let zoom = map.getZoom();
                 // set minimum zoom level
                 if (zoom > 16) {
-                    viewModel.map.setZoom(16);
+                    map.setZoom(16);
                 } else {
-                    viewModel.map.setZoom(zoom);
+                    map.setZoom(zoom);
                 }
             });
             // set up event listener to center the map if window size changes
-            google.maps.event.addDomListener(window, 'resize', this.centerMap);
+            google.maps.event.addDomListener(window, 'resize', () => {
+                this.resize();
+            });
+            window.map = map;
             window.markers = [];
         }, (err) => {
             console.error(err);
         });
     },
     infoWindowInit: function(viewModel) {
-        let infoWindowHTML = '<div id="info-window" data-bind="with: activePlace">'
-        infoWindowHTML += '<div id="info-title" >';
+        let infoWindowHTML = '<div id="info-window">'
+        infoWindowHTML += '<div id="info-title" data-bind="with: activePlace">';
         infoWindowHTML += '<h2 class="info-title" data-bind="text: title"></h2>';
         infoWindowHTML += '<div data-bind="html: fsqStatus"></div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '<div class="flex-container flex-center">';
         infoWindowHTML += '<div id="pano"></div>';
-        infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="foreach: fsqImages">';
-        infoWindowHTML += '<a class="place-img-ele" href="#">';
+        infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="with: activePlace">';
+        infoWindowHTML += '<div data-bind="foreach: fsqImages">';
+        infoWindowHTML += '<a class="place-img-ele" href="#" >';
         infoWindowHTML += '<img alt="Photo of place" data-bind="attr: {src: thumbSrc}, click: $root.openModal">';
         infoWindowHTML += '</a>';
+        infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
@@ -11146,50 +11038,24 @@ const gmaps = {
                 content: infoWindowHTML
             });
             viewModel.infoWindow = infoWindow;
-            window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
             * Only do this once.
             */
             google.maps.event.addListener(infoWindow, 'domready', function () {
-                console.log('ready');
-                console.log(isInfoWindowLoaded);
                 if (!isInfoWindowLoaded) {
-                    console.log('apply binding');
                     isInfoWindowLoaded = true;
                     ko.applyBindings(viewModel, document.getElementById('info-window'));
                 }
-                console.log(isInfoWindowLoaded);
             });
-
-
         }, (err) => {
             console.error(err);
         });
-
-    },
-    resize: function() {
-        const map = window.map;
-        if (map) {
-            const center = map.getCenter();
-            mapsPromise.then((google) => {
-                const repeatResize = setInterval(function(){
-                    google.maps.event.trigger(map, "resize");
-                    map.panTo(center);
-                }, 5);
-                setTimeout(function(){
-                    clearTimeout(repeatResize);
-                }, 300);
-            }, (err) => {
-                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
-                console.error(err);
-            });
-        }
     },
     createMarker: function(viewModel, place) {
         mapsPromise.then((google) => {
+            const map = window.map;
 
-            // helper functions
             function makeMarkerIcon(color) {
                 const markerImage = new google.maps.MarkerImage(
                     'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' +
@@ -11202,9 +11068,9 @@ const gmaps = {
                 );
                 return markerImage;
             }
+
             // Adding streetview to infowindow
             function processStreetView(data, status) {
-                console.log('ping');
                 if (status === google.maps.StreetViewStatus.OK) {
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
@@ -11235,21 +11101,18 @@ const gmaps = {
                         clearInterval(move);
                     }, 1500);
                 } else {
-                    console.log(':(');
+                    console.log('Street View data not found for this location.');
                 }
             }
 
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
-                    console.log('not the same');
-                    // infowindow.setContent(null);
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
                     if (infowindow.marker) {
                         prevListItem = document.getElementById(infowindow.marker.id);
                     }
-                    // infowindow.setContent(content);
                     infowindow.marker = selectedMarker;
 
                     // Setup streetview
@@ -11257,8 +11120,7 @@ const gmaps = {
                     const rad = 50;
                     SVService.getPanorama({location: selectedMarker.position, radius: rad}, processStreetView)
 
-                    // open the infowindow
-                    infowindow.open(viewModel.map, selectedMarker);
+                    infowindow.open(map, selectedMarker);
 
                     // make the item active in the list
                     listItem.classList.toggle("active");
@@ -11266,7 +11128,6 @@ const gmaps = {
                         prevListItem.classList.toggle("active");
                     }
 
-                    // event listener for closing the infowindow
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {
                             const currentItem = document.getElementById(infowindow.marker.id);
@@ -11274,10 +11135,6 @@ const gmaps = {
                         }
                         infowindow.marker = null;
                     });
-
-                    console.log(viewModel.infoWindow);
-                } else {
-                    console.log('it is the same');
                 }
             }
 
@@ -11292,7 +11149,7 @@ const gmaps = {
             const highlightedIcon = makeMarkerIcon('ff6464');
             const marker = new google.maps.Marker({
                 position: place.position,
-                map: viewModel.map,
+                map: map,
                 title: place.title,
                 animation: google.maps.Animation.DROP,
                 icon: defaultIcon,
@@ -11300,14 +11157,22 @@ const gmaps = {
             });
             window.markers.push(marker);
 
-            // add listeners
             marker.addListener('click', function() {
-                console.log('click');
                 viewModel.activePlace(place);
-                populateInfoWindow(this, viewModel.infoWindow);
-                markerBounce(this);
-                console.log(viewModel);
-                console.log(viewModel.activePlace());
+                /*
+                * Need to check if screen size is wide enough
+                * If not there needs to be some delay to fully render
+                */
+                const smallSize = viewModel.checkSize();
+                if (smallSize) {
+                    setTimeout(() => {
+                        populateInfoWindow(this, viewModel.infoWindow);
+                        markerBounce(this);
+                    }, 300)
+                } else {
+                    populateInfoWindow(this, viewModel.infoWindow);
+                    markerBounce(this);
+                }
             });
             marker.addListener('mouseover', function() {
                 this.setIcon(highlightedIcon);
@@ -11316,6 +11181,8 @@ const gmaps = {
                 this.setIcon(defaultIcon);
             });
 
+            // to avoid zooming onto the first marker created
+            this.centerMap();
         },
         (err) => {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
@@ -11345,6 +11212,24 @@ const gmaps = {
             console.error(err);
         });
     },
+    resize: function() {
+        const map = window.map;
+        if (map) {
+            const center = map.getCenter();
+            mapsPromise.then((google) => {
+                const repeatResize = setInterval(function(){
+                    google.maps.event.trigger(map, "resize");
+                    map.panTo(center);
+                }, 5);
+                setTimeout(function(){
+                    clearTimeout(repeatResize);
+                }, 300);
+            }, (err) => {
+                mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
+                console.error(err);
+            });
+        }
+    },
     filterMarkers: function(filteredMarkers) {
         const markers = window.markers;
         const filteredTitles = filteredMarkers.map((place) => place.title);
@@ -11371,16 +11256,11 @@ const gmaps = {
             mapEl.innerHTML = 'Something went wrong with Google Maps. Please check the console log.';
             console.error(err);
         });
-    },
-    addFsqData: function(data) {
-        console.log(data);
-        console.log('eh?');
     }
 }
 
-
 module.exports = gmaps;
-},{"../../lib/knockout/knockout-3.4.2":38,"./fsq":48,"google-maps-api-loader":40}],50:[function(require,module,exports){
+},{"../../lib/knockout/knockout-3.4.2":38,"google-maps-api-loader":40}],49:[function(require,module,exports){
 const gmaps = require('./maps');
 
 const menuIco = document.getElementById('menu-bar');
@@ -11434,7 +11314,7 @@ const media = {
 }
 
 module.exports = media;
-},{"./maps":49}],51:[function(require,module,exports){
+},{"./maps":48}],50:[function(require,module,exports){
 const gmaps = require('./maps');
 
 const menuIco = document.getElementById('menu-bar');
@@ -11474,22 +11354,4 @@ const moveMenu = function() {
 }
 
 module.exports = moveMenu;
-},{"./maps":49}],52:[function(require,module,exports){
-const modal = {
-    init: function() {
-        const modalEl = document.getElementById('myModal');
-        const closeModalBtn = document.getElementsByClassName('close-modal')[0];
-        closeModalBtn.addEventListener('click', function() {
-            modalEl.style.display = 'none';
-        })
-    },
-    updateModal: function(src) {
-        const modalEl = document.getElementById('myModal');
-        const modalImg = document.getElementById('imgModal');
-        modalEl.style.display = 'flex';
-        modalImg.src = src;
-    }
-}
-
-module.exports = modal;
-},{}]},{},[46]);
+},{"./maps":48}]},{},[46]);

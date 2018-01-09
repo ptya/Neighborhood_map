@@ -4,11 +4,6 @@ const Place = function (data) {
     this.position = data.position;
     this.placeID = data.placeID;
     this.fsqID = data.fsqID;
-    // this.fsqImgs = [
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-    //     {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
-    // ];
     this.fsqImages = [];
     this.fsqStatus = null;
 

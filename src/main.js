@@ -1,7 +1,6 @@
 const gmaps = require('./modules/maps');
 const ko = require('../lib/knockout/knockout-3.4.2');
 const media = require('./modules/media');
-const modal = require('./modules/modal');
 const moveMenu = require('./modules/menu');
 const Place = require('./models/Place');
 const places = require('./data/places');
@@ -10,27 +9,14 @@ const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
-    let map;
     this.infoWindow;
-    // let infoWindow;
-    modal.init();
     media.init();
     gmaps.mapInit(this);
     gmaps.infoWindowInit(this);
-    // gmaps.initMaps();
-    // let mapsLoaded = new Promise((res, rej) => {
-
-    // });
 
     // foursquare functions
     this.grabFsqData = function(place) {
-        function updatePlace(data) {
-            /*
-            * data[0] = fsqStatus
-            * data[1] = fsqImages
-            */
-            const status = data[0];
-            const images = data[1];
+        function updatePlace(status, images=null) {
             place.updateFsqStatus(status);
             place.updateFsqImages(images);
         }
@@ -70,29 +56,24 @@ const ViewModel = function() {
                     fsqStatus += `<span class="info"><strong>Rating:</strong> ${rating}</span>`;
                 }
 
-                /* TODO */
-                // resize the map if infowindow does not fit
-                // window.largeInfowindow.open(window.map);
-                // const infowindowContent = window.largeInfowindow.getContent();
-                // console.log(window.largeInfowindow.getContent());
-                // window.largeInfowindow.setContent(infowindowEl);
-
-                updatePlace([fsqStatus, fsqImages]);
+                updatePlace(fsqStatus, fsqImages);
             } else {
                 console.log('Something went wrong with Foursquare API.');
             }
         }
 
         function searchCallback(err, resp) {
+            const errStatus = '<span class="info">Foursquare result not available.</span>';
             if (!err) {
                 const venues = resp.response.venues;
                 if (venues.length > 0) {
                     const venueID = resp.response.venues[0].id;
-                    const fsqResp = fsqAPI.venues.venue(venueID, venueCallback);
+                    fsqAPI.venues.venue(venueID, venueCallback);
                 } else {
-                    console.log('Foursquare result not available.');
+                    updatePlace(errStatus);
                 }
             } else {
+                updatePlace(errStatus);
                 console.log('Something went wrong with Foursquare API.');
             }
         }
@@ -107,7 +88,10 @@ const ViewModel = function() {
     // Grab required elements
     const menuIco = document.getElementById('menu-bar');
     const menuClose = document.getElementById('menu-close');
-    const input = document.getElementById("filter-locations-text")
+    const input = document.getElementById("filter-locations-text");
+    const modalEl = document.getElementById('myModal');
+    const closeModalBtn = document.getElementsByClassName('close-modal')[0];
+    const modalImg = document.getElementById('imgModal');
 
     // Create places once maps is loaded
     this.placesList = ko.observableArray();
@@ -139,16 +123,7 @@ const ViewModel = function() {
         }
         return filteredList;
     });
-    this.fsqImages = ko.observableArray();
-    this.fsqImages([
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'},
-        {thumbSrc: 'http://via.placeholder.com/100x100', origSrc: 'http://via.placeholder.com/400x400'}
-    ]);
 
-    this.openModal = (imgSrcs) => {
-        console.log(imgSrcs.origSrc);
-    }
 
     // Clicking on a list item
     this.clickPlace = (place) => {
@@ -162,6 +137,16 @@ const ViewModel = function() {
         }
     };
 
+    // Check if screen size is small
+    this.checkSize = () => {
+        if(media.smallSize.matches) {
+            media.closedMenu();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // Hitting enter on the filter
     this.enterPlace = () => {
         if (this.filterInput()) {
@@ -169,26 +154,18 @@ const ViewModel = function() {
         }
     };
 
-    this.updateModal = (src) => {
-
+    // Modal handlers
+    this.openModal = (imgSrcs) => {
+        modalEl.style.display = 'flex';
+        modalImg.src = imgSrcs.origSrc;
     }
+    this.closeModal = () => modalEl.style.display = 'none';
 
-    setInterval(function(){
-        console.log('>>');
-        console.log(this.infoWindow);
-        console.log('<<');
-    }, 5000);
-
-    // Add listeners
-    input.addEventListener('keyup', (e) => {
+    // Events
+    this.lookForEnter = (d, e) => {
         if (e.keyCode === 13) this.enterPlace()
-    });
-    menuIco.addEventListener('click', moveMenu);
-    menuClose.addEventListener('click', moveMenu);
+    };
+    this.moveMenu = () => moveMenu();
 };
-
-const InfowindowViewModel = function() {
-    this.proba = ko.observable('No ez működik');
-}
 
 ko.applyBindings(new ViewModel());
