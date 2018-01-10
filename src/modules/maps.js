@@ -181,8 +181,6 @@ const gmaps = {
                         prevListItem.classList.toggle("active");
                     }
 
-                    const infoWindowEl = document.getElementById('info-window');
-
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {
                             const currentItem = document.getElementById(infowindow.marker.id);
