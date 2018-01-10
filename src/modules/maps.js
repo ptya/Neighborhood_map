@@ -70,7 +70,7 @@ const gmaps = {
             infoWindow = new google.maps.InfoWindow({
                 content: infoWindowHTML
             });
-            viewModel.infoWindow = infoWindow;
+            window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
             * Only do this once.
@@ -107,7 +107,7 @@ const gmaps = {
                 if (status === google.maps.StreetViewStatus.OK) {
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
-                        loc, viewModel.infoWindow.anchor.position
+                        loc, window.infoWindow.anchor.position
                     );
                     const options = {
                         position: loc,
@@ -191,7 +191,7 @@ const gmaps = {
             window.markers.push(marker);
 
             marker.addListener('click', function() {
-                viewModel.activePlace(place);
+                viewModel.openPlace(place);
                 /*
                 * Need to check if screen size is wide enough
                 * If not there needs to be some delay to fully render
@@ -199,11 +199,11 @@ const gmaps = {
                 const smallSize = viewModel.checkSize();
                 if (smallSize) {
                     setTimeout(() => {
-                        populateInfoWindow(this, viewModel.infoWindow);
+                        populateInfoWindow(this, window.infoWindow);
                         markerBounce(this);
                     }, 300)
                 } else {
-                    populateInfoWindow(this, viewModel.infoWindow);
+                    populateInfoWindow(this, window.infoWindow);
                     markerBounce(this);
                 }
             });

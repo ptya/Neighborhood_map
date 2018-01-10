@@ -9,16 +9,17 @@ const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
-    this.infoWindow;
     media.init();
     gmaps.mapInit(this);
     gmaps.infoWindowInit(this);
 
     // foursquare functions
-    this.grabFsqData = function(place) {
+    this.grabFsqData = (place) => {
+        const activePlace = this.activePlace;
         function updatePlace(status, images=null) {
             place.updateFsqStatus(status);
             place.updateFsqImages(images);
+            activePlace(place);
         }
         function venueCallback(err, resp) {
             if (!err) {
@@ -100,8 +101,6 @@ const ViewModel = function() {
             const placeItem = new Place(place);
             gmaps.createMarker(this, placeItem);
             this.placesList.push(placeItem);
-            // Collect foursquare information in advance
-            this.grabFsqData(placeItem);
         });
     })
 
@@ -124,6 +123,13 @@ const ViewModel = function() {
         return filteredList;
     });
 
+    // Selecting a marker
+    this.openPlace = (place) => {
+        this.activePlace(place);
+        if (!place.fsqStatus) {
+            this.grabFsqData(place);
+        }
+    };
 
     // Clicking on a list item
     this.clickPlace = (place) => {
@@ -145,7 +151,7 @@ const ViewModel = function() {
         } else {
             return false;
         }
-    }
+    };
 
     // Hitting enter on the filter
     this.enterPlace = () => {

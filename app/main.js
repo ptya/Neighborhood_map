@@ -10783,16 +10783,17 @@ const _ = require('underscore'); // eslint-disable-line import/no-unresolved
 
 const ViewModel = function() {
     // Init functions
-    this.infoWindow;
     media.init();
     gmaps.mapInit(this);
     gmaps.infoWindowInit(this);
 
     // foursquare functions
-    this.grabFsqData = function(place) {
+    this.grabFsqData = (place) => {
+        const activePlace = this.activePlace;
         function updatePlace(status, images=null) {
             place.updateFsqStatus(status);
             place.updateFsqImages(images);
+            activePlace(place);
         }
         function venueCallback(err, resp) {
             if (!err) {
@@ -10874,8 +10875,6 @@ const ViewModel = function() {
             const placeItem = new Place(place);
             gmaps.createMarker(this, placeItem);
             this.placesList.push(placeItem);
-            // Collect foursquare information in advance
-            this.grabFsqData(placeItem);
         });
     })
 
@@ -10898,6 +10897,13 @@ const ViewModel = function() {
         return filteredList;
     });
 
+    // Selecting a marker
+    this.openPlace = (place) => {
+        this.activePlace(place);
+        if (!place.fsqStatus) {
+            this.grabFsqData(place);
+        }
+    };
 
     // Clicking on a list item
     this.clickPlace = (place) => {
@@ -10919,7 +10925,7 @@ const ViewModel = function() {
         } else {
             return false;
         }
-    }
+    };
 
     // Hitting enter on the filter
     this.enterPlace = () => {
@@ -11037,7 +11043,7 @@ const gmaps = {
             infoWindow = new google.maps.InfoWindow({
                 content: infoWindowHTML
             });
-            viewModel.infoWindow = infoWindow;
+            window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
             * Only do this once.
@@ -11074,7 +11080,7 @@ const gmaps = {
                 if (status === google.maps.StreetViewStatus.OK) {
                     const loc = data.location.latLng;
                     const heading = google.maps.geometry.spherical.computeHeading(
-                        loc, viewModel.infoWindow.anchor.position
+                        loc, window.infoWindow.anchor.position
                     );
                     const options = {
                         position: loc,
@@ -11158,7 +11164,7 @@ const gmaps = {
             window.markers.push(marker);
 
             marker.addListener('click', function() {
-                viewModel.activePlace(place);
+                viewModel.openPlace(place);
                 /*
                 * Need to check if screen size is wide enough
                 * If not there needs to be some delay to fully render
@@ -11166,11 +11172,11 @@ const gmaps = {
                 const smallSize = viewModel.checkSize();
                 if (smallSize) {
                     setTimeout(() => {
-                        populateInfoWindow(this, viewModel.infoWindow);
+                        populateInfoWindow(this, window.infoWindow);
                         markerBounce(this);
                     }, 300)
                 } else {
-                    populateInfoWindow(this, viewModel.infoWindow);
+                    populateInfoWindow(this, window.infoWindow);
                     markerBounce(this);
                 }
             });

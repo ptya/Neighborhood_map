@@ -29,6 +29,11 @@ h1 {
   width: 20rem;
 }
 
+#info-window {
+  min-height: 356px;
+  min-width: 320px;
+}
+
 /* General classes */
 
 .flex-container {
