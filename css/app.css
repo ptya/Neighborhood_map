@@ -180,6 +180,12 @@ h1 {
   margin: 0 0.5em 0.5em;
 }
 
+/* Google streetview canvas */
+
+.widget-scene-canvas {
+  min-width: 320px;
+}
+
 /* Modal */
 
 .modal {

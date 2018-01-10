@@ -45,7 +45,7 @@ const gmaps = {
             console.error(err);
         });
     },
-    infoWindowInit: function(viewModel) {
+    infoWindowHTML: function() {
         let infoWindowHTML = '<div id="info-window">'
         infoWindowHTML += '<div id="info-title" data-bind="with: activePlace">';
         infoWindowHTML += '<h2 class="info-title" data-bind="text: title"></h2>';
@@ -62,9 +62,29 @@ const gmaps = {
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
         infoWindowHTML += '</div>';
+        return infoWindowHTML;
+    },
+    infoWindowInit: function(viewModel) {
+        // let infoWindowHTML = '<div id="info-window">'
+        // infoWindowHTML += '<div id="info-title" data-bind="with: activePlace">';
+        // infoWindowHTML += '<h2 class="info-title" data-bind="text: title"></h2>';
+        // infoWindowHTML += '<div data-bind="html: fsqStatus"></div>';
+        // infoWindowHTML += '</div>';
+        // infoWindowHTML += '<div class="flex-container flex-center">';
+        // infoWindowHTML += '<div id="pano"></div>';
+        // infoWindowHTML += '<div id="fsq" class="flex-container flex-column" data-bind="with: activePlace">';
+        // infoWindowHTML += '<div data-bind="foreach: fsqImages">';
+        // infoWindowHTML += '<a class="place-img-ele" href="#" >';
+        // infoWindowHTML += '<img alt="Photo of place" data-bind="attr: {src: thumbSrc}, click: $root.openModal">';
+        // infoWindowHTML += '</a>';
+        // infoWindowHTML += '</div>';
+        // infoWindowHTML += '</div>';
+        // infoWindowHTML += '</div>';
+        // infoWindowHTML += '</div>';
+        let infoWindowHTML = this.infoWindowHTML();
 
         let infoWindow;
-        let isInfoWindowLoaded = false;
+        window.isInfoWindowLoaded = false;
 
         mapsPromise.then((google) => {
             infoWindow = new google.maps.InfoWindow({
@@ -73,13 +93,10 @@ const gmaps = {
             window.infoWindow = infoWindow;
             /*
             * When the info window opens, bind it to Knockout.
-            * Only do this once.
             */
             google.maps.event.addListener(infoWindow, 'domready', function () {
-                if (!isInfoWindowLoaded) {
-                    isInfoWindowLoaded = true;
-                    ko.applyBindings(viewModel, document.getElementById('info-window'));
-                }
+                const infoWindowEl = document.getElementById('info-window');
+                ko.applyBindings(viewModel, infoWindowEl);
             });
         }, (err) => {
             console.error(err);
@@ -88,6 +105,7 @@ const gmaps = {
     createMarker: function(viewModel, place) {
         mapsPromise.then((google) => {
             const map = window.map;
+            const infoWindowHTML = this.infoWindowHTML();
 
             function makeMarkerIcon(color) {
                 const markerImage = new google.maps.MarkerImage(
@@ -141,6 +159,8 @@ const gmaps = {
             // Setting up the infowindow
             function populateInfoWindow(selectedMarker, infowindow) {
                 if (infowindow.marker !== selectedMarker) {
+                    infowindow.setContent(infoWindowHTML);
+
                     const listItem = document.getElementById(selectedMarker.id);
                     let prevListItem;
                     if (infowindow.marker) {
@@ -160,6 +180,8 @@ const gmaps = {
                     if (prevListItem) {
                         prevListItem.classList.toggle("active");
                     }
+
+                    const infoWindowEl = document.getElementById('info-window');
 
                     infowindow.addListener('closeclick', function() {
                         if (infowindow.marker) {

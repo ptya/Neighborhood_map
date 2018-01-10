@@ -120,10 +120,12 @@ const ViewModel = function() {
 
     // Selecting a marker
     this.openPlace = (place) => {
+        console.log(place);
         this.activePlace(place);
         if (!place.fsqStatus) {
             this.grabFsqData(place);
         }
+        console.log(this.activePlace());
     };
 
     // Clicking on a list item
