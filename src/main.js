@@ -1,5 +1,5 @@
 const gmaps = require("./modules/maps");
-const ko = require("../lib/knockout/knockout-3.4.2");
+const ko = require("../dist/lib/knockout/knockout-3.4.2");
 const media = require("./modules/media");
 const moveMenu = require("./modules/menu");
 const Place = require("./models/Place");
