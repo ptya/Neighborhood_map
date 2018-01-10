@@ -1,5 +1,5 @@
 const GoogleMapsApiLoader = require("google-maps-api-loader"); // eslint-disable-line import/no-unresolved
-const ko = require("../../lib/knockout/knockout-3.4.2");
+const ko = require("../../dist/lib/knockout/knockout-3.4.2");
 
 const mapEl = document.getElementById("map-canvas");
 const mapsPromise = GoogleMapsApiLoader({
