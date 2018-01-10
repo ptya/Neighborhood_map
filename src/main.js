@@ -87,11 +87,7 @@ const ViewModel = function() {
     }
 
     // Grab required elements
-    const menuIco = document.getElementById('menu-bar');
-    const menuClose = document.getElementById('menu-close');
-    const input = document.getElementById("filter-locations-text");
     const modalEl = document.getElementById('myModal');
-    const closeModalBtn = document.getElementsByClassName('close-modal')[0];
     const modalImg = document.getElementById('imgModal');
 
     // Create places once maps is loaded
@@ -113,8 +109,7 @@ const ViewModel = function() {
         let filteredList = (this.filterInput() == null) ?
             this.placesList() : this.placesList().filter((place) => {
                 return place.title.toLowerCase()
-                    .includes(this.filterInput().toLowerCase());
-            });
+                    .includes(this.filterInput().toLowerCase())});
         if (!_.isEqual(filteredList, this.previousList)) {
             gmaps.filterMarkers(filteredList);
             gmaps.centerMap();
@@ -165,7 +160,9 @@ const ViewModel = function() {
         modalEl.style.display = 'flex';
         modalImg.src = imgSrcs.origSrc;
     }
-    this.closeModal = () => modalEl.style.display = 'none';
+    this.closeModal = () => {
+        modalEl.style.display = 'none';
+    }
 
     // Events
     this.lookForEnter = (d, e) => {
