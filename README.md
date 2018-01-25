@@ -7,9 +7,6 @@ Once you set it up you will face an intuitive interface for all devices.
 
 For best experience, use [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html). :stuck_out_tongue_winking_eye:
 
-## GitHub Pages
-https://ptya.github.io/neighborhood-map-udacity-fsnd/
-
 #### It features:
 - Animation effects
 - StreetView on locations
@@ -25,6 +22,8 @@ https://ptya.github.io/neighborhood-map-udacity-fsnd/
 - [Knockout 3.4.2](http://knockoutjs.com/)
 - [Font Awesome](http://fontawesome.io/)
 
+## GitHub Pages
+https://ptya.github.io/neighborhood-map-udacity-fsnd/
 
 # Installation :coffee:
 
