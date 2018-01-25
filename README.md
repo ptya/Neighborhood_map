@@ -8,7 +8,7 @@ Once you set it up you will face an intuitive interface for all devices.
 For best experience, use [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html). :stuck_out_tongue_winking_eye:
 
 ## GitHub Pages
-[https://ptya.github.io/neighborhood-map-udacity-fsnd/]
+https://ptya.github.io/neighborhood-map-udacity-fsnd/
 
 #### It features:
 - Animation effects
